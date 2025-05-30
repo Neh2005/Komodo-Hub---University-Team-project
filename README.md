@@ -13,7 +13,7 @@
 
 This repository contains a personal copy of a collaborative university team project originally developed during my studies at Coventry University. The original code was part of a team effort and is hosted on the university's internal GitHub platform.
 
-This version is maintained for portfolio, learning, and personal use. All contributors to the original project are credited in the commit history.
+This version is maintained for portfolio, learning, and personal use.
 
 ## 📚 Table of Contents
 
