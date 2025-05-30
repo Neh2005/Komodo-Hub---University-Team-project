@@ -8,6 +8,13 @@
 **Komodo Hub** is a collaborative web platform designed to spread awareness about wildlife conservation while supporting structured educational features for schools and communities. Users can share information, participate in discussions, explore a wildlife encyclopedia, and interact through role-based dashboards.
 
 ---
+
+## 📚 Project Background
+
+This repository contains a personal copy of a collaborative university team project originally developed during my studies at Coventry University. The original code was part of a team effort and is hosted on the university's internal GitHub platform.
+
+This version is maintained for portfolio, learning, and personal use. All contributors to the original project are credited in the commit history.
+
 ## 📚 Table of Contents
 
 - [Tech Stack](#tech-stack)
