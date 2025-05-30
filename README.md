@@ -2,7 +2,7 @@
 
 
 <p align="center">
-  <img src="https://github.coventry.ac.uk/binoyn/Komodo-Hub/assets/7019/8acdd238-11f3-464b-8bf1-6d3b80982311" alt="Komodo Hub Banner" width="500"/>
+  <img src="https://github.com/user-attachments/assets/cd03c2bc-68bb-44cb-a2d6-0f340fadf9df" width="500"/>
 </p>
 
 **Komodo Hub** is a collaborative web platform designed to spread awareness about wildlife conservation while supporting structured educational features for schools and communities. Users can share information, participate in discussions, explore a wildlife encyclopedia, and interact through role-based dashboards.
