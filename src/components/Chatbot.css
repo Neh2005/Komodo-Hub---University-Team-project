@@ -1,0 +1,48 @@
+
+/* *****************Neha's part********************** */
+
+.helper-chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+  }
+  
+  .react-chatbotify .chat-window {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+  
+  .react-chatbotify .chat-header {
+    background-color: #6a1b9a;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .react-chatbotify .message.bot {
+    background-color: #6a1b9a;
+    color: white;
+    border-radius: 15px;
+  }
+  
+  .react-chatbotify .message.user {
+    background-color: #ffffff;
+    color: black;
+    border-radius: 15px;
+  }
+  
+  .react-chatbotify .button-group button {
+    background-color: #6a1b9a;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 5px;
+  }
+  
+  .react-chatbotify .button-group button[disabled] {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  

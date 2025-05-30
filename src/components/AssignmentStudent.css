@@ -1,0 +1,445 @@
+
+/* ***************************** Neha's part*****************************
+
+/* 🌟 Theme-Specific Sidebar Styles */
+.student-assignment-page .student-sidebar {
+    background: var(--sidebar-bg) !important;
+    transition: background 0.3s ease-in-out;
+}
+
+/* Ensure the global theme variables work */
+.student-assignment-page [data-theme="blue"] .student-sidebar {
+    background: linear-gradient(135deg, #0056b3, #004080) !important;
+}
+
+.student-assignment-page[data-theme="dark"] .student-sidebar {
+    background: linear-gradient(135deg, #333, #111) !important;
+}
+
+.student-assignment-page[data-theme="green"] .student-sidebar {
+    background: linear-gradient(135deg, #1d7833, #155d27) !important;
+}
+
+/* Ensure other elements also follow the theme */
+.student-assignment-page {
+    background: var(--primary-color);
+    transition: background 0.3s ease-in-out;
+}
+
+
+/* 🌟 Main Layout */
+.student-dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    width: 150%;
+    background: #f5f5f5;
+    overflow: hidden;
+}
+
+/* 🌟 Sidebar */
+.student-sidebar {
+    width: 270px;
+    background: var(--sidebar-bg);
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s ease-in-out;
+}
+
+/* Sidebar Navigation */
+.student-nav-links {
+    list-style: none;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.student-nav-links li {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.student-nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 5px;
+    transition: 0.3s ease-in-out;
+    font-weight: bold;
+}
+
+.student-nav-links a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+    font-weight: bold;
+}
+
+.student-nav-links i {
+    margin-right: 10px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* 🌟 User Profile in Sidebar */
+.student-profile {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    width: 100%;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.student-profile:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.student-profile img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid white;
+    margin-right: 10px;
+}
+
+.student-profile span {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* 🔹 Back to Dashboard Button */
+.back-dashboard-btn {
+    background: white;
+    color: var(--primary-color);
+    font-weight: bold;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background 0.3s ease-in-out;
+}
+
+.back-dashboard-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* 🌟 Main Content */
+.student-content-wrapper {
+    flex: 1;
+    padding: 100px;
+    width: calc(100% - 270px);
+    min-height: 100vh;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+    border-radius: 10px;
+    transition: background 0.3s ease-in-out;
+}
+
+/* 🌟 Assignments Section */
+.student-main-content {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Upload Form */
+.student-upload-form {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.student-upload-form label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.student-upload-form input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.student-upload-form button {
+    background: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s ease-in-out;
+}
+
+.student-upload-form button:hover {
+    background: var(--primary-dark);
+}
+
+/* Uploaded Assignments List */
+.student-assignments-list {
+    list-style: none;
+    margin-top: 20px;
+    padding: 0;
+}
+
+.student-assignments-list li {
+    background: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    text-align: left;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.student-assignments-list strong {
+    color: var(--primary-color);
+}
+
+/*pop up*/
+/* 🔹 Full-Screen Overlay for Modal Effect */
+/* 🔹 Full-Screen Overlay */
+.assignment-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Dark overlay */
+    backdrop-filter: blur(5px); /* Smooth blur effect */
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 🔹 Perfectly Centered Popup */
+.assignment-popup {
+    position: fixed;
+    background: white;
+    width: 600px;
+    max-width: 90%;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    z-index: 1001; /* Ensure it stays above the overlay */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center it properly */
+}
+
+/* 🔹 Smooth Appearance */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95); /* Small zoom-in effect */
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.assignment-popup {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* 🔹 Popup Title */
+.assignment-popup h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: #4A47A3;
+}
+
+/* 🔹 Due Date */
+.assignment-popup p {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+/* 🔹 Submission List */
+.assignment-popup ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+.assignment-popup ul li {
+    background: #f4f4f4;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+/* 🔹 File Download Link */
+.assignment-popup ul li a {
+    color: #4A47A3;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.assignment-popup ul li a:hover {
+    text-decoration: underline;
+}
+
+/* 🔹 Marks and Feedback */
+.assignment-popup span {
+    font-size: 13px;
+    color: #333;
+}
+
+/* 🔹 File Upload Input */
+.assignment-popup input[type="file"] {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* 🔹 Buttons Section */
+.assignment-popup .buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* 🔹 Upload Button */
+.assignment-confirm-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.assignment-confirm-btn:hover {
+    background: #45A049;
+}
+
+/* 🔹 Close Button */
+.assignment-cancel-btn {
+    background: #d9534f;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.assignment-cancel-btn:hover {
+    background: #c9302c;
+}
+
+/* 🔹 Delete Submission Button */
+.assignment-delete-btn {
+    background: #ff3b3b;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-left: 30px;
+}
+
+.assignment-delete-btn:hover {
+    background: #d32f2f;
+}
+
+/* 🔹 Responsive Design */
+@media screen and (max-width: 600px) {
+    .assignment-popup {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .assignment-popup ul li {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+    }
+
+    .assignment-delete-btn {
+        margin-top: 5px;
+    }
+}
+
+
+/* ✅ Responsive Design */
+@media (max-width: 1024px) {
+    .student-content-wrapper {
+        width: 100%;
+        padding: 20px;
+    }
+
+    .student-main-content {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .student-dashboard-container {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .student-sidebar {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-shadow: none;
+    }
+
+    .student-nav-links {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .student-main-content {
+        width: 100%;
+        padding: 15px;
+    }
+}

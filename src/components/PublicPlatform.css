@@ -1,0 +1,222 @@
+
+/* *** Dhanya's part *** */
+
+/* General Page Styling */
+.library-page {
+  display: flex;
+  flex-direction: column;
+  width: 90vw; /* Ensures full viewport width */
+  height: 180vh; /* Ensures full viewport height */
+  background-color: #f8f9fa; /* Light background */
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+.post-library-page {
+  display: flex;
+  flex-direction: column;
+  width: 90vw;
+  min-height: 100vh; /* ✅ Ensures dynamic height */
+  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+  overflow: auto; /* ✅ Allows scrolling when content exceeds viewport */
+}
+
+
+
+/* Main Container */
+.library-container {
+  display: flex;
+  flex-direction: row;
+  max-width: 1200px;
+  margin: 20px auto;
+  gap: 15px;
+  width: 100%;
+}
+
+/* Sidebar */
+.library-sidebar {
+  width: 250px;
+  background: #34495e;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.library-sidebar h4 {
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 18px;
+  border-bottom: 2px solid white;
+  padding-bottom: 5px;
+}
+
+.library-sidebar a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  padding: 10px 0;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+.library-sidebar a:hover {
+  background-color: #1abc9c;
+  padding-left: 10px;
+}
+
+/* Main Content */
+.library-content {
+  flex-grow: 1;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.library-content h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+/* Library Posts */
+.library-posts-section {
+  margin-bottom: 30px;
+}
+
+.library-post-card {
+  background: #ecf0f1;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.library-post-card:hover {
+  transform: scale(1.02);
+}
+
+.library-post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.library-post-header h4 {
+  margin: 0;
+  color: #2980b9;
+}
+
+.library-post-card p {
+  margin: 10px 0;
+}
+
+.library-post-card a {
+  display: inline-block;
+  margin-top: 10px;
+  text-decoration: none;
+  color: #27ae60;
+  font-weight: bold;
+}
+
+.library-post-card a:hover {
+  text-decoration: underline;
+}
+
+
+/* Delete Button */
+.library-delete-button {
+  background: none;
+  border: none;
+  color: red;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.library-delete-button:hover {
+  color: darkred;
+}
+
+/* Start a Library Post Form */
+.library-conversation-box {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.library-conversation-box h3 {
+  text-align: center;
+  color: #2c3e50;
+}
+
+.library-conversation-box form {
+  display: flex;
+  flex-direction: column;
+}
+
+.library-conversation-box input,
+.library-conversation-box textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #bdc3c7;
+  border-radius: 5px;
+}
+
+.library-conversation-box input[type="file"] {
+  border: none;
+}
+
+.library-conversation-box button {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s ease-in-out;
+
+}
+
+.library-conversation-box button:hover {
+  background: linear-gradient(135deg, #0056b3, #003d82); /* Darker gradient */
+  transform: scale(1.05); /* Slight enlargement on hover */
+ 
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .library-container {
+      flex-direction: column;
+  }
+
+  .library-sidebar {
+      width: 100%;
+      text-align: center;
+  }
+
+  .library-sidebar a {
+      display: inline-block;
+      margin-right: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .library-post-card {
+      padding: 10px;
+  }
+
+  .library-post-header {
+      flex-direction: column;
+      align-items: flex-start;
+  }
+
+  .library-delete-button {
+      margin-top: 5px;
+  }
+}

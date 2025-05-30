@@ -1,0 +1,192 @@
+
+/* **** Karmugilan's part **** */
+
+/* 🔹 Full-Screen Layout */
+.timetable-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #f4f4f9; /* Light background */
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* 🔹 Header Styling */
+.timetable-container h1 {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 30px;
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* 🔹 Table Styles */
+.timetable-table {
+  width: 80%;
+  max-width: 1000px;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.timetable-table th,
+.timetable-table td {
+  border: 1px solid #ddd;
+  padding: 15px;
+  text-align: center;
+}
+
+.timetable-table th {
+  background-color: #3498db;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.timetable-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.timetable-table td p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #2c3e50;
+}
+
+/* 🔹 Calendar Styling */
+.rbc-calendar {
+  width: 65%;
+  
+  margin-top: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  font-family: "Arial", sans-serif;
+}
+
+/* 🔹 Calendar Header */
+.rbc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 5px;
+}
+
+/* 🔹 Toolbar Buttons */
+.rbc-toolbar button {
+  background: #2c3e50 !important;
+  color: white !important;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.rbc-toolbar button:hover {
+  background: #1a252f !important;
+}
+
+/* 🔹 Active View Button */
+.rbc-active {
+  background: #3498db !important;
+}
+
+/* 🔹 Increase Height of Time Slots */
+.rbc-time-slot {
+  height: 70px !important; /* Increased for better visibility */
+}
+
+/* 🔹 Adjust Day Columns */
+.rbc-day-bg {
+  min-height: 120px !important;
+  background: #fafafa;
+}
+
+/* 🔹 Improve Event Spacing */
+.rbc-event {
+  min-height: 60px !important;
+  font-size: 14px;
+  border-radius: 5px;
+  padding: 8px;
+  margin-bottom: 20px;
+  color: white !important;
+  font-weight: bold;
+}
+
+/* 🔹 Different Event Colors */
+.rbc-event.blue-event {
+  background-color: #3498db !important;
+}
+
+.rbc-event.yellow-event {
+  background-color: #f1c40f !important;
+  color: black !important;
+}
+
+/* 🔹 Highlight Today’s Date */
+.rbc-today {
+  background: rgba(52, 152, 219, 0.2) !important;
+}
+
+/* 🔹 Week View */
+.rbc-time-header {
+  background: white;
+  border-bottom: 2px solid #ddd;
+}
+
+/* 🔹 Time Slot Labels */
+.rbc-timeslot-group {
+  border-bottom: 1px solid #ddd;
+  border-right: 2px solid #ddd;
+  height: 100px !important; /* Ensures taller columns */
+}
+
+/* 🔹 Responsive Design */
+@media (max-width: 1024px) {
+  .rbc-calendar {
+    width: 95%;
+    padding: 10px;
+  }
+
+  .rbc-time-slot {
+    height: 60px !important;
+  }
+
+  .rbc-event {
+    font-size: 12px;
+    min-height: 50px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .rbc-toolbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .rbc-toolbar button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .rbc-time-slot {
+    height: 50px !important;
+  }
+
+  .rbc-event {
+    font-size: 12px;
+    min-height: 40px !important;
+  }
+}

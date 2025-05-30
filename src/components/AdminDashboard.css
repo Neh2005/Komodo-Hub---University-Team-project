@@ -1,0 +1,790 @@
+
+/* *******************CHALITHA's PART except charts section********************* */
+
+/* Admin Dashboard Styling */
+.admin-dashboard {
+  display: flex;
+  height: 100vh;
+  width: 1530px;
+  background-color: #f4f6f9;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: 260px;
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.admin-menu h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.admin-menu ul {
+  list-style: none;
+  padding: 0;
+}
+
+.admin-menu ul li {
+  margin-left: 30px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+.admin-menu ul li:hover {
+  background-color: #34495e;
+  border-radius: 5px;
+}
+
+.admin-menu ul li a {
+  text-decoration: none; /* ✅ Removes underline from links */
+  color: inherit; /* ✅ Inherits color from parent */
+  display: block; /* Makes the link cover full clickable area */
+  width: 100%;
+}
+
+.admin-logout-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  text-decoration: none;
+  border-radius: 5px;
+  margin-top: 20px;
+  transition: background 0.3s;
+}
+
+.admin-logout-btn:hover {
+  background-color: #c0392b;
+}
+
+/*Wecome*/
+.admin-info {
+  display: flex;
+  align-items: center;
+}
+
+.admin-welcome {
+  margin-left: 20px;
+  margin-top: 20px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* header*/
+.admin-dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height:70px;
+  padding: 8px 15px;
+  background-color: var(--header-bg, #ffffff); /* Keep background white */
+  border-radius: 8px; /* Rounded edges */
+ 
+}
+
+.admin-search-bar {
+  flex: 1;
+  max-width: 500px; /* Increased width */
+
+}
+
+.admin-search-bar input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px; /* Fully rounded corners */
+  font-size: 14px;
+  background-color: #f8f9fc;
+  color: #333;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.admin-search-bar input::placeholder {
+  color: #ccd1f1;
+}
+
+.admin-controls {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  height: 50px;
+  gap: 12px;
+}
+
+.admin-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  
+}
+
+/*Quick Action buttons*/
+/* ✅ Quick Actions Section */
+.admin-quick-actions {
+  margin: 20px 0;
+  padding: 15px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  text-align: center;
+}
+
+.admin-quick-actions h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: var(--dark-text);
+}
+
+/* ✅ Quick Action Buttons */
+.admin-quick-action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.admin-quick-action-btn {
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s ease-in-out;
+}
+
+/* ✅ Unique Colors for Each Button */
+.users-btn {
+  background: #3498db; /* Blue */
+}
+
+.users-btn:hover {
+  background: #2980b9;
+}
+
+.subscriptions-btn {
+  background: #2ecc71; /* Green */
+}
+
+.subscriptions-btn:hover {
+  background: #27ae60;
+}
+
+.notifications-btn {
+  background: #f39c12; /* Orange */
+}
+
+.notifications-btn:hover {
+  background: #e67e22;
+}
+
+.export-btn {
+  background: #e74c3c; /* Red */
+}
+
+.export-btn:hover {
+  background: #c0392b;
+}
+
+.quick-action-btn i {
+  font-size: 16px;
+}
+
+
+
+/* ✅ Exact Button Style */
+.admin-controls button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 30px;
+  margin-left: 10px;
+  color: #777; /* Soft gray color */
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease-in-out;
+}
+
+.admin-controls button:hover {
+  color: black; /* Dark color on hover */
+  background-color: transparent !important;
+}
+
+
+.admin-controls button:focus,
+.admin-controls button:active {
+  outline: none;
+  box-shadow: none;
+  color: black !important; /* No green color */
+  background-color: transparent !important;
+}
+
+.admin-avatar {
+  width: 28px; /* Smaller size */
+  height: 28px; /* Smaller size */
+  margin-top: 20px;
+  margin-left: 10px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+/*Profile popup*/
+/* ✅ Prevent scrolling when modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* ✅ Full-Screen Overlay */
+.admin-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* ✅ Popup Container (Centered) */
+.admin-popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+}
+
+/* ✅ Profile Picture in Popup */
+.admin-popup-avatar {
+  width: 100px;
+  height: 100px;
+  border: 2px solid black;
+  margin-left: 120px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  object-fit: cover;
+}
+
+/* ✅ Upload Button */
+.admin-upload-btn {
+  display: block;
+  background: #007bff;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px auto;
+  width: fit-content;
+}
+
+/* ✅ Hide default file input */
+.admin-upload-btn input {
+  display: none;
+}
+
+/* ✅ Close Button */
+.admin-close-btn {
+  background: red;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  margin-top: 10px;
+  display: block;
+  margin: 10px auto; /* Centers horizontally */
+  text-align: center;
+
+}
+
+/* ✅ Ensure Popup is Not Cut Off */
+@media screen and (max-width: 500px) {
+  .admin-popup-content {
+    width: 90%;
+    padding: 15px;
+  }
+}
+
+
+/* Main Content */
+.admin-main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Header */
+.admin-dashboard-header h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Cards Section */
+.admin-cards {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.admin-card {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  text-align: center;
+  margin: 0 10px;
+}
+
+.admin-card h3 {
+  font-weight: bold;
+  font-size: 18px;
+  color: #2c3e50;
+}
+
+.admin-card p {
+  font-size: 22px;
+  font-weight: bold;
+  color: #2980b9;
+  margin-top: 5px;
+}
+
+/* Charts Section - ********************************** Neha's part ********************************* */
+.admin-charts {
+  display: flex;
+  margin-top: 30px;
+}
+
+.admin-chart-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  margin: 0 10px;
+}
+
+.admin-chart-container h3 {
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #333;
+} /* **************************** Till here NEHA'S PART ***************************** */
+
+
+/* User Table */
+.admin-users-table {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
+}
+
+.admin-users-table h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.admin-users-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-users-table th,
+.admin-users-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.admin-users-table th {
+  background-color: #2c3e50;
+  color: white;
+}
+
+/* Admin Details */
+.admin-details {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
+}
+
+.admin-details h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.admin-details p {
+  font-size: 16px;
+  color: #666;
+  margin: 5px 0;
+}
+
+.admin-details strong {
+  color: #2c3e50;
+}
+
+
+/* Charts Section - ******************************* Neha's part ********************************* */
+.admin-charts {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.admin-chart-wrapper {
+  width: 100%;
+  height: 400px; /* Fixed height for the chart */
+  max-height: 400px;
+}
+
+.admin-chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 400px;
+}
+
+.admin-chart-container h3 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c3e50;
+} 
+/* *************************************** Till here - Neha's part *************************** */
+
+
+/* ✅ User Demographics Table Container */
+.user-demographics {
+  margin-top: 20px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  max-width: 100%; /* Ensures it fits inside the screen */
+}
+
+/* ✅ Table Styling */
+.user-demographics table {
+  width: 100%; /* Ensure full width */
+  border-collapse: collapse;
+  font-size: 16px;
+  min-width: 1000px; /* Prevents column shrinking */
+}
+
+/* ✅ Table Header */
+.user-demographics th {
+  background: #2980b9; /* Deep Blue */
+  color: white;
+  text-align: center; /* Center text in header */
+  padding: 14px;
+  font-weight: bold;
+  white-space: nowrap; /* Prevents text wrapping */
+}
+
+/* ✅ Table Rows */
+.user-demographics td {
+  padding: 12px;
+  text-align: center; /* Center-align text */
+  border-bottom: 1px solid #ddd;
+  vertical-align: middle; /* Ensure vertical alignment */
+}
+
+/* ✅ Alternating Row Colors */
+.user-demographics tbody tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+/* ✅ Hover Effect */
+.user-demographics tbody tr:hover {
+  background: #e9ecef;
+  transition: 0.3s ease-in-out;
+}
+
+
+
+/* ✅ Cancel Subscription Button */
+.admin-cancel-subscription-btn {
+  background-color: #a8dadc; /* Soft Blue-Green */
+  color: #1d3557;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease-in-out;
+}
+
+.admin-cancel-subscription-btn:hover {
+  background-color: #82b1b6;
+}
+
+/* ✅ Delete Account Button */
+.admin-delete-account-btn {
+  background-color: #f4a261; /* Soft Orange */
+  color: #2c3e50;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease-in-out;
+}
+
+.admin-delete-account-btn:hover {
+  background-color: #e09c5b;
+}
+
+/*Programs*/
+/* Admin Dashboard Styles */
+.admin-dashboard {
+  display: flex;
+  height: 100vh;
+}
+
+.admin-sidebar {
+  width: 250px;
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.admin-sidebar h2 {
+  text-align: center;
+}
+
+.admin-menu ul {
+  list-style: none;
+  padding: 0;
+}
+
+.admin-menu li {
+  padding: 10px 0;
+}
+
+.admin-menu a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.admin-menu a i {
+  margin-right: 10px;
+}
+
+.admin-logout-btn {
+  background-color: red;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+
+.add-program-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.programs-carousel {
+  margin-top: 20px;
+}
+
+.program-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.3s;
+  margin: 10px;
+}
+
+.program-card:hover {
+  transform: scale(1.05);
+}
+
+.program-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.program-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.program-form {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+}
+
+.program-form h2 {
+  text-align: center;
+}
+
+.program-form form {
+  display: flex;
+  flex-direction: column;
+}
+
+.program-form label {
+  margin-top: 10px;
+}
+
+.program-form input,
+.program-form textarea {
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.program-form button {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.program-form button:nth-child(2) {
+  background-color: red;
+}
+
+/* ✅ Responsive Table for Small Screens */
+@media (max-width: 768px) {
+  .user-demographics table {
+    font-size: 14px;
+  }
+
+  .user-demographics th, 
+  .user-demographics td {
+    padding: 8px;
+  }
+}
+
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .admin-cards {
+      flex-direction: column;
+      align-items: center;
+  }
+
+  .admin-card {
+      width: 80%;
+      margin-bottom: 15px;
+  }
+
+  /* Charts Section - Neha's part */
+  .admin-charts {
+      flex-direction: column;
+  }
+
+  .admin-chart-container {
+      width: 100%;
+      margin-bottom: 15px;
+  } /* Till here */
+
+  .admin-sidebar {
+      width: 220px;
+  }
+
+  .admin-main-content {
+      padding: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+      flex-direction: column;
+  }
+
+  .admin-sidebar {
+      width: 100%;
+      text-align: center;
+  }
+
+  .admin-menu ul {
+      display: flex;
+      justify-content: space-around;
+  }
+
+  .admin-menu ul li {
+      padding: 10px;
+      font-size: 14px;
+  }
+
+  .admin-logout-btn {
+      width: auto;
+      margin: 10px auto;
+  }
+
+  .admin-main-content {
+      padding: 10px;
+  }
+
+  .admin-card {
+      width: 100%;
+  }
+}

@@ -1,0 +1,930 @@
+/* **** CHALITHA's PART **** */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+}
+
+/* ✅ Teacher Dashboard Layout */
+.teacher-dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  width: 120%;
+  background-color: #f4f6f9;
+  overflow: hidden;
+}
+
+/* 📌 Sidebar */
+.teacher-sidebar {
+  width: 250px;
+  background: #2c3e50;
+  color: #ecf0f1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 100vh;
+  box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+/* 🎭 Profile Section */
+.teacher-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Add space between image and text */
+  cursor: pointer;
+  padding: 10px;
+}
+
+.teacher-profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #ecf0f1;
+  object-fit: cover;
+}
+
+.teacher-profile span {
+  color: white; /* Change color as needed */
+  white-space: nowrap;
+  font-size: 18px;
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+/* 🔗 Sidebar Navigation */
+.teacher-nav-links {
+  list-style: none;
+  width: 150%;
+  flex-grow: 1;
+  margin-left: 10px;
+  
+}
+
+.teacher-nav-links li {
+  width: 100%;
+ 
+}
+
+.teacher-nav-links a {
+  color: #ecf0f1;
+  text-decoration: none;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 5px;
+  transition: 0.3s ease-in-out;
+  
+}
+
+.teacher-nav-links a i {
+  margin-right: 10px;
+}
+
+.teacher-nav-links a:hover {
+  background: #34495e;
+  transform: scale(1.05);
+}
+
+/* 🎯 Upcoming Programs Section */
+.teacher-upcoming-programs {
+  margin-top: 20px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.teacher-upcoming-programs h2 {
+  font-size: 20px;
+  color: #2c3e50;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+/* 🎡 Carousel Container */
+.teacher-programs-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 🎠 Programs Wrapper */
+.teacher-programs-container {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 10px;
+  scrollbar-width: none;
+}
+
+/* Hide scrollbar for Chrome, Safari */
+.teacher-programs-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* 📌 Program Cards */
+.teacher-program-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+  padding: 15px;
+  width: 220px;
+  text-align: center;
+  transition: 0.3s ease-in-out;
+}
+
+.teacher-program-card:hover {
+  transform: scale(1.05);
+}
+
+.teacher-program-card img {
+  width: 100%;
+  height: 120px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.teacher-program-card h3 {
+  font-size: 16px;
+  color: #333;
+  margin-top: 10px;
+}
+
+.teacher-program-card p {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 🎯 Carousel Buttons */
+.teacher-carousel-btn {
+  background: #2c3e50;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s ease-in-out;
+}
+
+.teacher-carousel-btn:hover {
+  background: #2c3e50;
+}
+
+.teacher-left-btn {
+  position: absolute;
+  left: 10px;
+}
+
+.teacher-right-btn {
+  position: absolute;
+  right: 10px;
+}
+
+/* 📌 Bottom Sidebar Buttons */
+.teacher-bottom-buttons {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: auto;
+}
+
+
+/*Profile*/
+/* ✅ Profile Modal Overlay */
+.teacher-profile-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* 📌 Profile Modal Box */
+.teacher-profile-popup-box {
+    background: white;
+    padding: 25px;
+    width: 450px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    position: relative;
+}
+
+/* ❌ Close Button */
+.teacher-profile-popup-box .teacher-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #555;
+    transition: color 0.3s ease;
+}
+
+.teacher-profile-popup-box .teacher-close-btn:hover {
+    color: #e74c3c;
+}
+
+/* 🎭 Profile Avatar */
+.teacher-profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid #2c3e50;
+    margin-bottom: 10px;
+}
+
+/* ℹ️ Input Fields */
+.teacher-profile-popup-box label {
+    display: block;
+    font-weight: bold;
+    margin: 10px 0 5px;
+    text-align: left;
+}
+
+.teacher-profile-popup-box input,
+.teacher-profile-popup-box select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+    font-size: 14px;
+}
+
+.teacher-profile-popup-box input:focus,
+.teacher-profile-popup-box select:focus {
+    border-color: #2980b9;
+}
+
+/* ✅ Avatar Selection */
+.teacher-avatar-selection {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.teacher-avatar-selection img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.3s ease, border 0.3s ease;
+}
+
+.teacher-avatar-selection img:hover {
+    transform: scale(1.1);
+}
+
+.teacher-avatar-selection img.selected {
+    border-color: #2980b9;
+    transform: scale(1.1);
+}
+
+/* 📜 Subscription Details */
+.teacher-profile-popup-box h3 {
+    margin-top: 15px;
+    font-size: 16px;
+    color: #2980b9;
+}
+
+.teacher-profile-popup-box p {
+    font-size: 14px;
+    color: #555;
+    margin: 5px 0;
+}
+
+/* 💾 Save Button */
+.teacher-save-btn {
+    background: #2980b9;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background 0.3s ease;
+}
+
+.teacher-save-btn:hover {
+    background: #1f669b;
+}
+
+
+/* Calendar Styling */
+/* Calendar Container */
+.teacher-calendar {
+  background-color: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  text-align: center;
+}
+
+/* Ensure Calendar Container is Clean */
+.react-calendar {
+  width: 100% !important;
+  max-width: 280px;
+  border: none !important;
+  font-family: "Poppins", sans-serif;
+  background-color: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+/* Fix Navigation Buttons */
+.react-calendar__navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 5px;
+  color: #3b5998;
+  padding: 5px 0;
+}
+
+.react-calendar__navigation button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #3b5998;
+  cursor: pointer;
+  padding: 5px 12px;
+}
+
+.react-calendar__navigation span {
+  flex-grow: 1; /* Allows the label to expand properly */
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: #3b5998;
+}
+
+/* Reduce Button Width for More Spacing */
+.react-calendar__navigation button:first-child,
+.react-calendar__navigation button:last-child {
+  min-width: 30px; /* Ensures arrow buttons don't take too much space */
+}
+
+/* ✅ REMOVE DOTTED UNDERLINE UNDER WEEKDAY NAMES */
+.react-calendar__month-view__weekdays {
+  font-size: 14px;
+  color: #777;
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr);
+  text-transform: uppercase;
+  font-weight: bold;
+  border-bottom: none !important;
+  text-decoration: none !important;
+  background: none !important;
+}
+
+/* Extra Fix to Ensure Weekday Titles Have No Underline */
+.react-calendar__month-view__weekdays__weekday {
+  text-decoration: none !important;
+  border-bottom: none !important;
+  outline: none !important;
+}
+
+/* Remove Borders Inside Calendar */
+.react-calendar__month-view__days {
+  border: none !important;
+}
+
+/* Calendar Date Cells */
+.react-calendar__tile {
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+  border-radius: 6px;
+  transition: background 0.3s;
+  border: none !important;
+  font-weight: normal;
+}
+
+/* Make Saturdays & Sundays Red */
+.react-calendar__month-view__days__day--weekend {
+  color: red !important;
+  font-weight: bold;
+}
+
+/* Today's Date Styling */
+.react-calendar__tile--now {
+  background-color: #e3e6f3;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+/* Active (Selected) Date */
+.react-calendar__tile--active {
+  background-color: #3b5998;
+  color: white;
+  border-radius: 6px;
+}
+
+/* Remove dotted underline from weekday abbreviations */
+.react-calendar abbr {
+  text-decoration: none !important;
+  -webkit-text-decoration: none !important;
+  border-bottom: none !important;
+}
+
+.react-calendar__month-view__days {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr); /* Ensures 7 equal columns */
+  grid-gap: 5px;
+  padding: 5px;
+}
+
+/* Upcoming Events Section */
+.teacher-upcoming-events {
+  background-color: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.teacher-upcoming-events h3 {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.teacher-upcoming-events ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.teacher-event-item {
+  display: flex;
+  align-items: center;
+  background-color: #f8f9fc;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+}
+
+.teacher-event-icon {
+  width: 8px;
+  height: 40px;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.teacher-event-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.teacher-event-title {
+  font-weight: bold;
+  color: #333;
+}
+
+.teacher-event-time {
+  font-size: 12px;
+  color: #666;
+}
+
+.event-red { background-color: #ff4d4d; }
+.event-orange { background-color: #ff9900; }
+.event-yellow { background-color: #ffcc00; }
+.event-green { background-color: #00cc66; }
+
+
+/* 📌 Quick Actions Container */
+.teacher-quick-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 📌 Quick Action Buttons */
+
+
+/* 📄 Assign Task Button */
+.quick-action-btn:nth-child(1) {
+  background: #3498db; /* Calming Blue */
+}
+
+.quick-action-btn:nth-child(1):hover {
+  background: #2980b9;
+  transform: scale(1.05);
+}
+
+/* 📊 View Reports Button */
+.quick-action-btn:nth-child(2) {
+  background: #2ecc71; /* Soft Green */
+}
+
+.quick-action-btn:nth-child(2):hover {
+  background: #27ae60;
+  transform: scale(1.05);
+}
+
+/* 📩 Send Message Button */
+.quick-action-btn:nth-child(3) {
+  background: #7f8c8d; /* Calm Orange */
+}
+
+.quick-action-btn:nth-child(3):hover {
+  background: #636e72;
+  transform: scale(1.05);
+}
+
+/*Schedule popup*/
+/* 🔹 Popup Styling */
+.teacher-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.teacher-popup-box {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 350px;
+  max-width: 90%;
+  text-align: center;
+}
+
+.teacher-popup-box h2 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #2c3e50;
+}
+
+.teacher-popup-box label {
+  display: block;
+  text-align: left;
+  font-weight: bold;
+  margin: 10px 0 5px;
+}
+
+.teacher-popup-box input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.teacher-popup-box button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+.teacher-popup-box button:first-of-type {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.teacher-popup-box button:first-of-type:hover {
+  background-color: #27ae60;
+}
+
+.teacher-popup-box button:last-of-type {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.teacher-popup-box button:last-of-type:hover {
+  background-color: #c0392b;
+}
+
+
+/*Notifications*/
+/* 🔴 Red dot for unread messages */
+.notification-dot {
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  margin-left: -110px;
+  margin-bottom: 15px;
+}
+
+
+
+/* ✅ Responsive Modal Adjustments */
+@media (max-width: 768px) {
+    .teacher-profile-popup-box {
+        width: 90%;
+        max-width: 400px;
+        padding: 20px;
+    }
+
+    .teacher-profile-popup-box input,
+    .teacher-profile-popup-box select {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+
+/* 🎯 Logout & Delete Buttons */
+.teacher-delete-btn, .teacher-logout-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* ❌ Delete Account Button */
+.teacher-delete-btn {
+  background: #e74c3c;
+  color: white;
+}
+
+.teacher-delete-btn:hover {
+  background: #c0392b;
+  transform: scale(1.05);
+}
+
+/* 🔒 Logout Button */
+.teacher-logout-btn {
+  background: #2980b9;
+  color: white;
+}
+
+.teacher-logout-btn:hover {
+  background: #1f669b;
+  transform: scale(1.05);
+}
+
+/* 📌 Main Content Wrapper */
+.teacher-content-wrapper {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* 🏫 Main Content */
+.teacher-main-content {
+  flex-grow: 1;
+  padding: 30px;
+  width: 100%; /* Ensure it takes all remaining space */
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.teacher-main-content h2 {
+  font-size: 24px;
+  color: #2c3e50;
+}
+
+/* 📊 Dashboard Stats */
+.teacher-dashboard-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+/* 📌 Stat Cards */
+.teacher-stat-card {
+  flex: 1;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  transition: 0.3s ease-in-out;
+  min-width: 200px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.teacher-stat-card:hover {
+  transform: translateY(-5px);
+}
+
+/* 📊 Right Sidebar */
+.teacher-right-sidebar {
+  width: 340px;
+  padding: 20px;
+  background-color: #f4f7fc;
+  border-left: 2px solid #ddd;
+  position: absolute;
+  right: 0;
+  top: 0;
+  gap: 20px;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.teacher-right-sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 📈 Chart Containers */
+.teacher-chart-container {
+  width: 100%; /* Ensures the chart fills the container */
+  max-width: 280px; /* Prevents it from being too large */
+  padding: 10px; /* Adjust padding */
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  background: white;
+  font-weight: bold;
+  margin-bottom: 15px; /* Reduce space between charts */
+}
+
+.teacher-chart-container canvas {
+  width: 100% !important;
+  height: auto !important;
+  display: block;
+  max-width: 100%;
+}
+
+/* 📌 Buttons Section */
+.teacher-button-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: auto;
+}
+
+/* General Button Styling */
+.teacher-library-btn, .teacher-canvas-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* 📚 Library Button */
+.teacher-library-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.teacher-library-btn:hover {
+  background: var(--btn-hover);
+  transform: scale(1.05);
+}
+
+/* 🎨 Canvas Button */
+.teacher-canvas-btn {
+  background: #DC3545;
+  color: white;
+}
+
+.teacher-canvas-btn:hover {
+  background: #b02a37;
+  transform: scale(1.05);
+}
+
+/* 📌 Responsive Design */
+@media (max-width: 1024px) {
+  .teacher-dashboard-content {
+      flex-wrap: wrap;
+  }
+
+  .teacher-stat-card {
+      flex: 1 1 calc(50% - 10px);
+  }
+
+  .teacher-right-sidebar {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  }
+
+  .teacher-chart-container {
+      width: 90%;
+      max-width: 400px;
+  }
+}
+
+/* ✅ Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+
+  /* 📌 Make Dashboard Layout Vertical */
+  .teacher-dashboard-container {
+      flex-direction: column;
+      width: 100%;
+  }
+
+  /* 📌 Sidebar Adjustments */
+  .teacher-sidebar {
+      width: 100%;
+      padding: 15px;
+      text-align: center;
+      box-shadow: none;
+  }
+
+  /* 📌 Stack Content Wrapper (Main + Sidebar) */
+  .teacher-content-wrapper {
+      flex-direction: column;
+      width: 100%;
+  }
+
+  .teacher-main-content {
+      width: 100%;
+      padding: 15px;
+  }
+
+  .teacher-dashboard-content {
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+  }
+
+  .teacher-stat-card {
+      width: 100%;
+      max-width: 90%;
+  }
+
+  .teacher-right-sidebar {
+      width: 100%;
+      height: auto;
+      padding: 15px;
+  }
+
+  .teacher-chart-container {
+      width: 100%;
+      max-width: 100%;
+      margin-bottom: 15px;
+  }
+
+  .teacher-button-container {
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+  }
+}

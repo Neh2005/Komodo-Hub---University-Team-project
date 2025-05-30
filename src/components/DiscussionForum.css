@@ -1,0 +1,356 @@
+
+/***************************************** Revan's part except some parts as in the comments******************************** */
+
+/* General Page Styling */
+.discussion-page {
+    display: flex;
+    flex-direction: column;
+    width: 90vw; /* Ensures full viewport width */
+    height: 120vh; /* Ensures full viewport height */
+    background-color: #f8f9fa; /* Light background */
+    font-family: Arial, sans-serif;
+    overflow:visible;
+}
+  
+  /* Header */
+ 
+  
+  /* Main Container */
+  .discussion-container {
+    display: flex;
+    flex-direction: row;
+    max-width: 1200px;
+    margin: 20px auto;
+    gap: 15px;
+    width: 100%;
+   
+  }
+  
+  /* Sidebar */
+  .discussion-sidebar {
+    width: 250px;
+    background: #34495e;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  .discussion-sidebar h4 {
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 18px;
+    border-bottom: 2px solid white;
+    padding-bottom: 5px;
+  }
+  
+  .discussion-sidebar a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 10px 0;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+  
+  .discussion-sidebar a:hover {
+    background-color: #1abc9c;
+    padding-left: 10px;
+  }
+  
+  /* Main Content */
+  .discussion-content {
+    flex-grow: 1;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .discussion-content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2c3e50;
+  }
+  
+  /* Discussion Posts */
+  .discussion-posts-section {
+    margin-bottom: 30px;
+  }
+  
+  .discussion-post-card {
+    background: #ecf0f1;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+  }
+  
+  .discussion-post-card:hover {
+    transform: scale(1.02);
+  }
+  
+  .discussion-post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .discussion-post-header h4 {
+    margin: 0;
+    color: #2980b9;
+  }
+  
+  .discussion-post-card p {
+    margin: 10px 0;
+  }
+  
+  .discussion-post-card a {
+    display: inline-block;
+    margin-top: 10px;
+    text-decoration: none;
+    color: #27ae60;
+    font-weight: bold;
+  }
+  
+  .discussion-post-card a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Reply Section */
+  .discussion-replies-section {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+  }
+  
+  .discussion-replies-section h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .discussion-replies-section textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+    font-size: 14px;
+  }
+  
+  .discussion-replies-section button {
+    background: #007bff;
+    color: #fff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+  }
+  
+  .discussion-replies-section button:hover {
+    background: #0056b3;
+  }
+  
+  .discussion-reply {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin-top: 10px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+  }
+  
+  .discussion-reply p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  /* *********************************** Neha's part  ***************************************** */
+  .reply-delete-button {
+    align-self: flex-end;
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .reply-delete-button:hover {
+    background: #c82333;
+  }
+  /* *************************************Till here Neha's part*********************************** */
+
+  /* ✅ Responsive Design */
+  @media (max-width: 1024px) {
+    .discussion-container {
+      flex-direction: column;
+      padding: 15px;
+    }
+  
+    .discussion-sidebar {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+  
+    .discussion-content {
+      width: 100%;
+    }
+  
+    .discussion-replies-section textarea {
+      font-size: 16px;
+    }
+  
+    .discussion-reply p {
+      font-size: 15px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .discussion-post-card {
+      padding: 12px;
+    }
+  
+    .discussion-replies-section {
+      padding: 10px;
+    }
+  
+    .discussion-reply {
+      padding: 8px;
+    }
+  
+    .discussion-reply p {
+      font-size: 14px;
+    }
+  
+    .reply-delete-button {
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .discussion-container {
+      padding: 10px;
+    }
+  
+    .discussion-replies-section textarea {
+      font-size: 14px;
+      padding: 8px;
+    }
+  
+    .discussion-reply p {
+      font-size: 13px;
+    }
+  
+    .reply-delete-button {
+      font-size: 11px;
+      padding: 3px 6px;
+    }
+  }
+  
+  
+  /* ************************** Delete Button - Neha's part ************************* */
+  .discussion-delete-button {
+    background: none;
+    border: none;
+    color: red;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .discussion-delete-button:hover {
+    color: darkred;
+  }
+  /* ******************************** Till here Neha's part *************************** */
+
+
+  /* Start a Discussion Form */
+  .discussion-conversation-box {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .discussion-conversation-box h3 {
+    text-align: center;
+    color: #2c3e50;
+  }
+  
+  .discussion-conversation-box form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .discussion-conversation-box input,
+  .discussion-conversation-box textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 5px;
+  }
+  
+  .discussion-conversation-box input[type="file"] {
+    border: none;
+  }
+  
+  .discussion-conversation-box button {
+    background: #27ae60;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.3s;
+  }
+  
+  .discussion-conversation-box button:hover {
+    background: #2ecc71;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 900px) {
+    .discussion-container {
+      flex-direction: column;
+    }
+  
+    .discussion-sidebar {
+      width: 100%;
+      text-align: center;
+    }
+  
+    .discussion-sidebar a {
+      display: inline-block;
+      margin-right: 10px;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .discussion-post-card {
+      padding: 10px;
+    }
+  
+    .discussion-post-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .discussion-delete-button {
+      margin-top: 5px;
+    }
+  }
+  

@@ -1,0 +1,156 @@
+
+  /* *** Maneesh's part *** */
+  
+  /* Wrapper to hold the entire quiz */
+  .quiz-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: -100px;
+    width: 100vw;
+  }
+  
+  /* Header Section */
+  .quiz-header {
+    width: 100%;
+    text-align: center;
+    background: #007bff;
+    color: white;
+    padding: 15px;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  /* Timer Styling */
+  .quiz-timer {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: yellow;
+  }
+  
+  /* Progress Bar */
+  .progress-bar-container {
+    width: 90%;
+    height: 10px;
+    background-color: #ddd;
+    margin: 10px 0;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .progress-bar {
+    height: 10px;
+    background-color: #28a745;
+    transition: width 0.4s ease-in-out; /* Smooth transition */
+  }
+  
+  /* Quiz Content */
+  .quiz-container {
+    background: white;
+    width: 80%;
+    max-width: 800px;
+    text-align: center;
+    padding: 20px;
+    margin-top: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+  
+  /* General Button Styles */
+.quiz-option {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.quiz-option:hover {
+  background-color: #ddd;
+}
+
+.quiz-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Correct and Wrong Answer Feedback */
+.quiz-option.correct {
+  background-color: #4caf50 !important;
+  color: white;
+}
+
+.quiz-option.wrong {
+  background-color: #e74c3c !important;
+  color: white;
+}
+
+/* Navigation Buttons */
+.prev-btn, .next-btn, .final-submit-btn {
+  padding: 12px 20px;
+  margin: 15px 5px;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Previous Button */
+.prev-btn {
+  background-color: #3498db;
+  color: white;
+}
+
+.prev-btn:hover {
+  background-color: #2980b9;
+}
+
+/* Next Button */
+.next-btn {
+  background-color: #f39c12;
+  color: white;
+}
+
+.next-btn:hover {
+  background-color: #e67e22;
+}
+
+/* Final Submit Button */
+.final-submit-btn {
+  background-color: #2ecc71;
+  color: white;
+  font-weight: bold;
+}
+
+.final-submit-btn:hover {
+  background-color: #27ae60;
+}
+
+/* Disabled Button */
+.next-btn:disabled, .prev-btn:disabled, .final-submit-btn:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background-color: #ddd;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #3498db;
+  width: 0%;
+  transition: width 0.4s ease-in-out;
+  border-radius: 5px;
+}

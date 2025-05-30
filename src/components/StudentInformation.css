@@ -1,0 +1,220 @@
+
+/* ****** CHALITHA's PART ******* */ 
+
+.information-dashboard-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    background-color: #f4f4f9;
+    font-family: "Arial", sans-serif;
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+  }
+  
+  /* 🔹 Sidebar */
+  .information-sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* 🔹 Sidebar Navigation Links */
+  .information-nav-links {
+    list-style: none;
+    padding: 0;
+    margin-top: 20px;
+  }
+  
+  .information-nav-links li {
+    padding: 12px;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .information-nav-links li:hover {
+    background-color: #34495e;
+    border-radius: 5px;
+  }
+  
+  .information-nav-links a {
+    text-decoration: none;
+    color: white;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .information-nav-links i {
+    margin-right: 10px;
+  }
+  
+  /* 🔹 Profile Section */
+  .information-profile {
+    text-align: center;
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .information-profile img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid white;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .information-profile img:hover {
+    transform: scale(1.1);
+  }
+  
+  .information-profile span {
+    display: block;
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  /* 🔹 Content Wrapper */
+  .information-content-wrapper {
+    flex: 1;
+    padding: 30px;
+    overflow-x: auto; /* Prevents horizontal scroll issues */
+  }
+  
+  /* 🔹 Main Content Box */
+  .information-main-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    overflow-x: auto; /* Ensures table doesn't cause horizontal scrolling */
+  }
+  
+  /* 🔹 Student Submissions Table */
+  .student-information-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+    border-radius: 8px;
+    table-layout: auto; /* Allows columns to adjust dynamically */
+  }
+  
+  /* 🔹 Table Headers and Cells */
+  .student-information-table th,
+  .student-information-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    white-space: nowrap; /* Prevents content from wrapping inside cells */
+  }
+  
+  /* 🔹 Table Headers */
+  .student-information-table th {
+    background-color: #3498db;
+    color: white;
+  }
+  
+  /* 🔹 Table Links */
+  .student-information-table a {
+    text-decoration: none;
+    color: #2c3e50;
+    font-weight: bold;
+  }
+  
+  /* 🔹 Inputs for Marks and Feedback */
+  .student-information-table input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  /* 🔹 Submit Button */
+  .student-information-table button {
+    background-color: #2ecc71;
+    color: white;
+    padding: 8px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .student-information-table button:hover {
+    background-color: #27ae60;
+  }
+  
+  /* 🔹 Make Table Fully Responsive */
+  @media (max-width: 1024px) {
+    .information-content-wrapper {
+        padding: 20px;
+    }
+  
+    .student-information-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto; /* Enables scrolling inside table when needed */
+    }
+  
+    .student-information-table th,
+    .student-information-table td {
+        padding: 8px;
+        font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .information-dashboard-container {
+        flex-direction: column;
+        height: auto;
+    }
+  
+    .information-sidebar {
+        width: 100%;
+        height: auto;
+        text-align: center;
+    }
+  
+    .information-profile img {
+        width: 60px;
+        height: 60px;
+    }
+  
+    .information-nav-links li {
+        display: inline-block;
+        margin: 5px;
+    }
+  
+    .information-content-wrapper {
+        width: 100%;
+        padding: 15px;
+    }
+  
+    .student-information-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto; /* Enables scrolling if necessary */
+    }
+  
+    .student-information-table th,
+    .student-information-table td {
+        font-size: 12px;
+        padding: 6px;
+    }
+  
+    .student-information-table input {
+        width: 90%;
+        font-size: 12px;
+    }
+  
+    .student-information-table button {
+        font-size: 12px;
+        padding: 6px;
+    }
+  }
+  

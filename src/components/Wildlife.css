@@ -1,0 +1,155 @@
+
+/* **** Karmugilan's part **** */
+
+.wildlife-page {
+    display: flex;
+    flex-direction: column;
+    width: 90vw; /* Ensures full viewport width */
+     /* Ensures full viewport height */
+    background-color: #f8f9fa; /* Light background */
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
+
+
+.wildlife-container {
+    display: flex;
+    flex-direction: row;
+    max-width: 1200px;
+    margin: 20px auto;
+    gap: 15px;
+    width: 100%;
+  }
+  
+  /* Sidebar */
+  .wildlife-sidebar {
+    width: 250px;
+    background: #34495e;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    height: 120vh;
+  }
+  
+  .wildlife-sidebar h4 {
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 18px;
+    border-bottom: 2px solid white;
+    padding-bottom: 5px;
+  }
+  
+  .wildlife-sidebar a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 10px 0;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+  
+  .wildlife-sidebar a:hover {
+    background-color: #1abc9c;
+    padding-left: 10px;
+  }
+  
+  .wildlife-content {
+    flex-grow: 1;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 500px;
+  }
+  
+  .search-box input {
+    width: 300px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .search-box button {
+    padding: 10px 15px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .search-box button:hover {
+    background: #0056b3;
+  }
+  
+  .wildlife-info {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    max-width: 600px;
+  }
+  
+  .wildlife-info img {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .wildlife-info p {
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .wildlife-info a {
+    display: block;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .wildlife-info a:hover {
+    text-decoration: underline;
+  }
+  
+  /* ✅ Responsive */
+  @media (max-width: 768px) {
+    .wildlife-container {
+      flex-direction: column;
+      padding: 10px;
+    }
+  
+    .wildlife-sidebar {
+      width: 100%;
+      text-align: center;
+      border-right: none;
+      margin-bottom: 10px;
+    }
+  
+    .wildlife-content {
+      width: 100%;
+      padding: 10px;
+    }
+  
+    .search-box {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .search-box input {
+      width: 100%;
+    }
+  
+    .wildlife-info {
+      max-width: 100%;
+    }
+  }
+  

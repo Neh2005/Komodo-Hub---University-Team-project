@@ -1,0 +1,1029 @@
+
+/* ********************* Neha's part except some parts as in the comments ********************** */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    
+  }
+
+ /* 🌟 Global Theme Variables - *** CHALITHA'S PART FROM HERE TILL *** */
+:root {
+    --primary-color: #6c63ff;  /* Default Violet */
+    --primary-dark: #534bff;
+    --sidebar-bg: linear-gradient(135deg, #4A47A3, #302F6B);
+    --btn-hover: #5a54e6;
+    --chart-color: #4A47A3;
+    --enroll-btn-color: #6c63ff; /* Violet Default */
+    --enroll-btn-hover: #534bff;
+    --student-quiz-btn-color: #6c63ff;
+    --student-quiz-btn-hover: #534bff;
+    
+}
+
+/* 🔄 Theme Adjustments (Will be changed dynamically using JavaScript) */
+[data-theme="blue"] {
+    --primary-color: #007BFF;
+    --primary-dark: #0056b3;
+    --sidebar-bg: linear-gradient(135deg, #0056b3, #004080);
+    --btn-hover: #004d99;
+    --chart-color: #007BFF;
+    --enroll-btn-color: #007BFF; /* Match theme */
+    --enroll-btn-hover: #0056b3;
+    --student-quiz-btn-color: #007BFF;
+    --student-quiz-btn-hover: #0056b3;
+}
+
+[data-theme="dark"] {
+    --primary-color: #222;
+    --primary-dark: #111;
+    --sidebar-bg: linear-gradient(135deg, #333, #111);
+    --btn-hover: #444;
+    --chart-color: #555;
+    --enroll-btn-color: #444;
+    --enroll-btn-hover: #222;
+    --student-quiz-btn-color: #444;
+    --student-quiz-btn-hover: #222;
+}
+
+[data-theme="green"] {
+    --primary-color: #28a745;
+    --primary-dark: #1d7833;
+    --sidebar-bg: linear-gradient(135deg, #1d7833, #155d27);
+    --btn-hover: #1a682a;
+    --chart-color: #28a745;
+    --enroll-btn-color: #28a745;
+    --enroll-btn-hover: #1a682a;
+    --student-quiz-btn-color: #28a745;
+    --student-quiz-btn-hover: #1a682a;
+}
+
+/* Default Violet Theme */
+[data-theme="violet"] .main-content {
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(255, 255, 255, 0.7));
+}
+
+/* Blue Theme */
+[data-theme="blue"] .main-content {
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.2), rgba(255, 255, 255, 0.7));
+}
+
+/* Dark Theme */
+[data-theme="dark"] .main-content {
+    background: linear-gradient(135deg, rgba(34, 34, 34, 0.5), rgba(255, 255, 255, 0.1));
+    color: white;
+}
+
+/* Green Theme */
+[data-theme="green"] .main-content {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.2), rgba(255, 255, 255, 0.7));
+}
+/* **** CHALITHA'S PART TILL HERE **** */
+  
+
+  .dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    background: #f5f5f5;
+    overflow: hidden;
+  }
+  
+ /* Sidebar */
+.sidebar {
+    width: 270px;
+    background: linear-gradient(135deg, #4A47A3, #302F6B); /* Gradient effect */
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.2);
+    background: var(--sidebar-bg) !important;
+    overflow: hidden;
+}
+
+/* Sidebar Navigation */
+.nav-links {
+    list-style: none;
+    width: 100%;
+    flex-grow: 1;
+    
+}
+
+.nav-links li {
+    width: 100%;
+    margin: 10px 0;
+    
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 5px;
+    transition: 0.3s ease-in-out;
+    font-weight: bold;
+}
+
+.nav-links a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+    font-weight: bold;
+}
+
+.nav-links i {
+    margin-right: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    
+}
+
+/* User Profile */
+.profile {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    width: 100%;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.profile:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.profile img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid white;
+    margin-right: 10px;
+}
+
+.profile span {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/*Profile popup*/
+
+.profile-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Profile Popup Box */
+.profile-popup-box {
+    background: white;
+    padding: 20px;
+    width: 500px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    position: relative;
+}
+
+/* Close Button */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #555;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: #d9534f;
+}
+
+/* Input Fields */
+.profile-popup-box label {
+    display: block;
+    font-weight: bold;
+    margin: 10px 0 5px;
+    text-align: left;
+}
+
+.profile-popup-box input,
+.profile-popup-box select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    font-size: 14px;
+}
+
+.profile-popup-box input:focus,
+.profile-popup-box select:focus {
+    border-color: #6c63ff;
+}
+
+/* Avatar Selection */
+.avatar-selection {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.avatar-selection img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.3s ease, border 0.3s ease;
+    
+}
+
+.avatar-selection img:hover {
+    transform: scale(1.1);
+}
+
+.avatar-selection img.selected {
+    border-color: #6c63ff;
+    transform: scale(1.1);
+    border-color: var(--primary-color) !important;
+}
+
+/* Subscription Details */
+.profile-popup-box h3 {
+    margin-top: 15px;
+    font-size: 16px;
+    color: #6c63ff;
+    color: var(--primary-color) !important;
+}
+
+.profile-popup-box p {
+    font-size: 14px;
+    color: #555;
+    margin: 5px 0;
+}
+
+/* Save Button */
+.save-btn {
+    background: #6c63ff;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background 0.3s ease;
+    background: var(--primary-color) !important;
+}
+
+.save-btn:hover {
+    background: #534bff;
+    background: var(--primary-dark) !important;
+}
+
+/*Notification*/
+.student-notification-dot {
+    width: 10px;
+    height: 10px;
+    background-color: red;
+    border-radius: 50%;
+    margin-left: -140px;
+    margin-bottom: 15px;
+  }
+
+/* Buttons */
+.button-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: auto;
+}
+
+/* General Button Styling */
+.library-btn, .canvas-btn, .logout-btn, .delete-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    text-align: center;
+    text-decoration: none;
+}
+
+/* Library Button */
+.library-btn {
+    background: #4A47A3;
+    color: white;
+    background: var(--primary-color) !important;
+}
+
+.library-btn:hover {
+    background: #3a3785;
+    transform: scale(1.05);
+    background: var(--btn-hover) !important;
+}
+
+/* Canvas Button */
+.canvas-btn {
+    background: #DC3545;
+    color: white;
+}
+
+.canvas-btn:hover {
+    background: #b02a37;
+    transform: scale(1.05);
+}
+
+/* Logout Button */
+.logout-btn {
+    background: linear-gradient(45deg, #FF0000, #CC0000);
+    color: white;
+    font-weight: bold;
+}
+
+.logout-btn:hover {
+    background: linear-gradient(45deg, #FF4500, #B22222);
+    transform: scale(1.05);
+}
+
+/*UserProfile*/
+
+.profile {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.2);
+    width: 100%;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.profile:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.profile img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid white;
+    margin-right: 10px;
+}
+
+.profile span {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/*Enrolled Programs*/
+.upcoming-programs-container {
+    margin: 20px 0;
+    padding: 20px;
+    background: var(--light-bg);
+    border-radius: 10px;
+  }
+  
+  .scrolling-wrapper {
+    display: flex;
+    gap: 15px;
+    padding: 10px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+  }
+  
+  /* Ensure program card remains the same size */
+.program-card {
+    width: 280px;  /* Fixed width */
+    height: 350px; /* Fixed height to prevent overflow */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: center;
+    overflow: hidden; /* Ensures content stays inside */
+}
+
+/* Style the image inside the program card */
+.program-card .program-img {
+    width: 100%;
+    height: 150px; /* Set a fixed height */
+    border-radius: 10px;
+    object-fit: cover; /* Ensures image fills area without stretching */
+}
+
+/* Ensure title and text don't expand the card */
+.program-card h3 {
+    font-size: 18px;
+    margin: 8px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.program-card p {
+    font-size: 14px;
+    color: #555;
+    flex-grow: 1; /* Allows text to take up space but not push image */
+}
+
+/* Button styling */
+.program-card .enroll-btn,
+.program-card .enrolled-btn {
+    padding: 8px 12px;
+    width: 80%;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.enrolled-btn {
+    background: var(--primary-color);
+    color: white;
+}
+
+.enroll-btn {
+    background: var(--enroll-btn-color);
+    color: white;
+    transition: background 0.3s ease-in-out;
+}
+
+.enroll-btn:hover {
+    background: var(--enroll-btn-hover); 
+}
+
+  
+  .unenroll-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .unenroll-popup-box {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
+  .unenroll-popup-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 15px;
+  }
+  
+  .unenroll-confirm-btn {
+    background: red;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  .unenroll-cancel-btn {
+    background: gray;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+  }  
+  
+
+/* Delete Account Button */
+.delete-btn {
+    background: linear-gradient(45deg, #FF5733, #FF0000);
+    color: white;
+    font-weight: bold;
+}
+
+.delete-btn:hover {
+    background: linear-gradient(45deg, #FF4500, #CC0000);
+    transform: scale(1.05);
+}
+
+/* Delete Popup Overlay */
+.delete-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Popup Box */
+.delete-popup-box {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 350px;
+}
+
+/* Warning Text */
+.delete-popup-box h2 {
+    color: #FF0000;
+    margin-bottom: 10px;
+}
+
+/* Buttons */
+.delete-popup-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+/* Confirm Delete Button */
+.confirm-delete {
+    background: #DC3545;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.confirm-delete:hover {
+    background: #B02A37;
+}
+
+/* Cancel Button */
+.cancel-btn {
+    background: #6c757d;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.cancel-btn:hover {
+    background: #5a6268;
+}
+
+
+/* Bottom Buttons Section */
+.bottom-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    width: 100%;
+}
+
+  
+  /* Wrapper to keep main content and right sidebar side by side */
+  .content-wrapper {
+    display: flex;
+    flex: 1;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  
+  /* Main Content */
+  .main-content {
+    background: linear-gradient(135deg, var(--primary-color) 10%, rgba(255, 255, 255, 0.7) 80%);
+    flex: 1;
+    padding: 30px;
+    width: calc(100% - 300px);
+    min-height: 100vh;
+    overflow-y: auto;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease-in-out;
+  }
+  
+  /* Top Header */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-box {
+    width: 250px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+/* Dashboard Stats */
+.dashboard-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/*Quiz section*/
+/* ✅ Styling for Quizzes Section */
+.student-quiz-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: var(--light-bg); /* Adjust to match your theme */
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+  }
+  
+  .student-quiz-section h2 {
+    font-size: 24px;
+    color: var(--dark-text);
+    margin-bottom: 15px;
+  }
+  
+  /* ✅ Flexbox Layout for Quiz Cards */
+  .student-quiz-card-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  /* ✅ Individual Quiz Card */
+  .student-quiz-card {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    max-width: 280px;
+    overflow: hidden;
+  }
+  
+  .student-quiz-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* ✅ Quiz Image */
+  .student-quiz-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  /* ✅ Quiz Title */
+  .student-quiz-card h3 {
+    font-size: 18px;
+    color: var(--dark-text);
+    margin: 12px 0;
+  }
+  
+  /* ✅ Quiz Description */
+  .student-quiz-card p {
+    font-size: 14px;
+    color: var(--gray-text);
+    margin-bottom: 12px;
+  }
+  
+  /* ✅ Quiz Button */
+  .student-quiz-btn {
+    background: var(--student-quiz-btn-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .student-quiz-btn:hover {
+    background: var(--student-quiz-btn-hover);
+  }
+  
+/* Stat Cards */
+.stat-card {
+    flex: 1;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: 0.3s ease-in-out;
+    min-width: 200px;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card h3 {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.stat-card p {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* Icon Container */
+.icon-container {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.icon-container img {
+    width: 50px;
+    height: 50px;
+}
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .dashboard-content {
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        flex: 1 1 calc(50% - 10px);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .stat-card {
+        width: 100%;
+    }
+}
+
+  
+  /* Right Sidebar */
+.right-sidebar {
+    width: 340px;
+    background: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 100vh;
+    box-shadow: -2px 0px 10px rgba(0, 0, 0, 0.1);
+    overflow-y: hidden; /* Ensures scrollability if content overflows */
+}
+
+.right-sidebar::-webkit-scrollbar {
+    display: none;
+}
+/* Chart Containers */
+.chart-container {
+    width: 100%;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    background: white;
+    font-weight: bold;
+    margin-bottom: 50px;
+}
+
+/* Specific Styling for Login Chart */
+#loginChart {
+    width: 100% !important;
+    height: 150px !important;
+    display: block;
+    margin: 0 auto; /* Centers the chart */
+}
+
+/* Ensure Chart Color Matches Theme */
+.chart-container canvas {
+    border-color: var(--chart-color) !important;
+}
+
+
+/* Responsive Fix for Smaller Screens */
+@media (max-width: 1024px) {
+    .right-sidebar {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chart-container {
+        width: 90%;
+        max-width: 400px;
+    }
+
+    #loginChart {
+        height: 150px !important;
+    }
+}
+
+/*small screens*/
+/* ✅ Mobile Responsive Adjustments (Full Vertical Layout) */
+@media (max-width: 768px) {
+
+    /* 📌 Make Dashboard Layout Vertical */
+    .dashboard-container {
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+    }
+
+    /* 📌 Sidebar Adjustments */
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-shadow: none;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .nav-links li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-links a {
+        font-size: 14px;
+        padding: 10px;
+        width: 100%;
+    }
+
+    /* 📌 Stack User Profile */
+    .profile {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .profile span {
+        font-size: 16px;
+    }
+
+    /* 📌 Stack Content Wrapper (Main + Sidebar) */
+    .content-wrapper {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    /* 📌 Ensure Main Content is Full Width */
+    .main-content {
+        width: 100%;
+        padding: 15px;
+    }
+
+    /* 📌 Stack Header Elements */
+    .top-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .search-box {
+        width: 100%;
+        max-width: 320px;
+        font-size: 14px;
+    }
+
+    /* 📌 Stack Dashboard Stats */
+    .dashboard-content {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .stat-card {
+        width: 100%;
+        max-width: 90%;
+    }
+
+    /* 📌 Stack Right Sidebar Below Main Content */
+    .right-sidebar {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chart-container {
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 15px; /* Add space between charts */
+    }
+
+    /* 📌 Ensure Charts are Fully Responsive */
+    #loginChart, #progressChart {
+        width: 100% !important;
+        height: auto !important;
+    }
+
+    /* 📌 Stack Buttons */
+    .button-container {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        width: 100%;
+    }
+
+    .library-btn, .canvas-btn {
+        width: 100%;
+        max-width: 90%;
+        font-size: 14px;
+    }
+
+    /* 📌 Profile Popup Adjustments */
+    .profile-popup-box {
+        width: 90%;
+        max-width: 400px;
+        padding: 15px;
+    }
+
+    .profile-popup-box input,
+    .profile-popup-box select {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    /* 📌 Delete Popup */
+    .delete-popup-box {
+        width: 90%;
+        max-width: 350px;
+    }
+
+    .confirm-delete, .cancel-btn {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    
+}

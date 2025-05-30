@@ -1,0 +1,364 @@
+/* GENERAL STYLES */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+
+/* CONTAINER */
+.profile-container {
+  max-width: 900px;
+  
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  overflow: hidden;
+
+}
+
+/* COVER IMAGE */
+.cover-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background-color: #e0e0e0;
+  overflow: hidden;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-container input {
+  position: absolute;
+  bottom: 10px;
+  left: 20px;
+}
+
+.cover-container button {
+  position: absolute;
+  bottom: 10px;
+  right: 20px;
+  background: #0073b1;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: 0.3s;
+}
+
+.cover-container button:hover {
+  background: #005580;
+}
+
+/* PROFILE PICTURE */
+.profile-pic-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: -60px auto 10px;
+  border: 4px solid white;
+  background: white;
+}
+
+.profile-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-pic-container input {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.profile-pic-container button {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0073b1;
+  color: #fff;
+  border: none;
+  padding: 5px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+  transition: 0.3s;
+}
+
+.profile-pic-container button:hover {
+  background: #005580;
+}
+
+/* PROFILE INFO */
+.profile-box {
+  text-align: center;
+  padding: 20px;
+}
+
+.input-group {
+  margin: 15px 0;
+  text-align: left;
+  padding: 0 30px;
+}
+
+.input-group label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.input-group input,
+.input-group textarea,
+.input-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.input-group input:focus,
+.input-group textarea:focus,
+.input-group select:focus {
+  border-color: #0073b1;
+  outline: none;
+}
+
+/* Payment*/
+
+/* Overlay styling */
+.payment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal content styling */
+.payment-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 450px;
+}
+
+/* Headings */
+.payment-modal-content h3 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Form and input groups */
+.payment-modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.payment-input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.payment-input-group label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+.payment-input-group input,
+.payment-input-group select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+/* Buttons */
+.pay-btn,
+.payment-close-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  width: 420px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pay-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.pay-btn:disabled {
+  background-color: #9E9E9E;
+}
+
+.payment-close-btn {
+  background-color: #F44336;
+  color: white;
+  margin-top: 20px;
+}
+
+/* Hover effects for buttons */
+.pay-btn:not(:disabled):hover,
+.close-btn:hover {
+  opacity: 0.9;
+}
+
+
+/* SUBSCRIPTION SECTION */
+.subscription-section {
+  background: #f8f9fa;
+  padding: 15px;
+  text-align: center;
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+}
+
+.subscription-section h3 {
+  margin: 0;
+  color: #333;
+}
+
+.subscription-section p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.library-subscribe-btn,
+.library-cancel-btn {
+  background: #0073b1;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: 0.3s;
+}
+
+.library-subscribe-btn:hover,
+.library-cancel-btn:hover {
+  background: #005580;
+}
+
+.library-cancel-btn {
+  background: #dc3545;
+}
+
+.library-cancel-btn:hover {
+  background: #b02a37;
+}
+
+/* BUTTONS */
+.library-save-btn,
+.library-back-btn {
+  display: block;
+  width: 80%;
+  margin: 15px auto;
+  padding: 10px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.library-save-btn {
+  background: #28a745;
+  color: white;
+}
+
+.library-save-btn:hover {
+  background: #218838;
+}
+
+.library-back-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.library-back-btn:hover {
+  background: #5a6268;
+}
+
+/* MODAL OVERLAY */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  width: 400px;
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+.modal-content .input-group {
+  text-align: left;
+}
+
+.modal-content button {
+  margin-top: 15px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .profile-container {
+    max-width: 100%;
+  }
+
+  .profile-box {
+    padding: 15px;
+  }
+
+  .input-group {
+    padding: 0 15px;
+  }
+
+  .library-save-btn,
+  .library-back-btn {
+    width: 90%;
+  }
+}

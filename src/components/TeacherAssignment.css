@@ -1,0 +1,184 @@
+/* **** CHALITHA's PART **** */
+
+/* ✅ General Styles */
+.teacher-dashboard-container-create {
+  display: flex;
+  height: 100vh;
+  width: 1500px;
+  background-color: #f4f6f9;
+  font-family: 'Arial', sans-serif;
+}
+
+/* ✅ Sidebar Styles */
+.teacher-sidebar-create {
+  width: 250px;
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.teacher-sidebar-create ul {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+
+.teacher-sidebar-create ul li {
+  padding: 12px 0;
+  text-align: left;
+}
+
+.teacher-sidebar-create ul li a {
+  text-decoration: none;
+  color: white;
+  font-size: 16px;
+  display: flex;
+  align-items: left;
+  justify-content: left;
+}
+
+.teacher-sidebar-create ul li a i {
+  margin-right: 10px;
+}
+
+.teacher-profile-create {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.teacher-profile-create img {
+  width: 50px;
+  height: 50px;
+  margin-right: 15px;
+  border-radius: 50%;
+  border: 3px solid white;
+}
+
+/* ✅ Main Content */
+.teacher-content-wrapper-create {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.teacher-main-content-create {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 700px;
+  width: auto;
+  margin: auto;
+  text-align: center;
+}
+
+.teacher-main-content-create h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #34495e;
+}
+
+/* ✅ Form Inputs */
+.teacher-main-content-create input[type="text"],
+.teacher-main-content-create input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+/* ✅ Buttons */
+.teacher-main-content-create button {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+
+.teacher-main-content-create button:hover {
+  background-color: #219150;
+}
+
+/* ✅ Assignment Cards */
+.assignment-card-create {
+  background: #ecf0f1;
+  padding: 15px;
+  margin-top: 20px;
+  border-radius: 8px;
+  text-align: left;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.assignment-card-create h3 {
+  font-size: 20px;
+  color: #2c3e50;
+}
+
+.assignment-card-create p {
+  font-size: 14px;
+  margin: 5px 0;
+  color: #555;
+}
+
+.assignment-card-create a {
+  color: #2980b9;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.assignment-card-create a:hover {
+  text-decoration: underline;
+}
+
+/* ✅ Delete Button */
+.delete-button-create {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+  margin-top: 10px;
+}
+
+.delete-button-create:hover {
+  background-color: #c0392b;
+}
+
+/* ✅ Responsive Design */
+@media (max-width: 768px) {
+  .teacher-dashboard-container-create {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .teacher-sidebar-create {
+    width: 100%;
+    text-align: center;
+  }
+
+  .teacher-sidebar-create ul li {
+    display: inline-block;
+    margin: 5px;
+  }
+
+  .teacher-content-wrapper-create {
+    padding: 15px;
+  }
+
+  .teacher-main-content-create {
+    width: 100%;
+  }
+}

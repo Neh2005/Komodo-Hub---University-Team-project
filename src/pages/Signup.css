@@ -1,0 +1,208 @@
+
+/* **** Revan's part except  **** */
+
+/* Ensure styles only apply to the signup page */
+.signup-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Left Section - Background Image */
+.signup-container .left-section {
+  flex: 1;
+  background: url('/images/signup.jpeg') no-repeat center center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-left: 50px;
+  animation: slideInLeft 1.2s ease-in-out;
+}
+
+/* Overlay Text on Image */
+.signup-container .overlay {
+  text-align: center;
+  color: white;
+  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 30px;
+  border-radius: 10px;
+}
+
+.signup-container .brand-title {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.signup-container .brand-text {
+  font-size: 18px;
+  max-width: 300px;
+}
+
+/* Right Section - Signup Form */
+.signup-container .right-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  animation: slideInRight 1.2s ease-in-out;
+  overflow-y: auto; /* Allow scrolling */
+  height: 100vh; /* Ensure full height */
+}
+
+/* Signup Form Box */
+.signup-container .form-box {
+  width: 100%;
+  max-width: 360px;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Form Input Fields */
+.signup-container .input-group {
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.signup-container .input-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.signup-container .input-group input,
+.signup-container .input-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+.signup-container .input-group input:focus,
+.signup-container .input-group select:focus {
+  border-color: #2EE59D;
+  box-shadow: 0 0 8px rgba(46, 229, 157, 0.5);
+}
+
+/* Signup Button */
+.signup-container .signup-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #007BFF, #0056b3);
+  color: white;
+  font-size: 16px;
+  transition: all 0.3s ease-in-out;
+  font-weight: bold;
+}
+
+.signup-container .signup-btn:hover {
+  background: linear-gradient(135deg, #0056b3, #003c7d);
+  transform: scale(1.05);
+}
+
+/* Signup Redirect Link */
+.signup-container .login-link {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.signup-container .login-link a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.signup-container .login-link a:hover {
+  text-decoration: underline;
+}
+
+/* Message Box */
+.signup-container .message {
+  text-align: center;
+  font-size: 14px;
+  color: red;
+  margin-top: 10px;
+}
+
+/* Sliding Animations */
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-100px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ✅ FIX: Responsive Design - Make Form Scrollable on Mobile */
+@media (max-width: 768px) {
+  .signup-container {
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: auto;
+      overflow-y: auto; /* Allow scrolling */
+  }
+
+  .signup-container .left-section {
+      display: none; /* Hide background image */
+  }
+
+  .signup-container .right-section {
+      width: 100%;
+      height: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      padding: 30px 15px; /* Add padding to avoid cutting form */
+  }
+
+  .signup-container .form-box {
+      width: 90%;
+      max-width: 400px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+  }
+}
+
+.google-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: greenyellow;
+  color: black;
+  font-size: 16px;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+.google-btn:hover {
+  background: #f0f0f0;
+}
+
+.google-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
