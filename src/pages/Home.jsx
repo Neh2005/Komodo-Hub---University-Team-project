@@ -201,11 +201,11 @@ const Home = () => {
         <div className="review-container">
           <div className="review-card">
             <p>
-              "Komodo Hub has transformed the way I engage my students with
+              &quot;Komodo Hub has transformed the way I engage my students with
               conservation education. The interactive learning tools make lessons
               more engaging, and the progress tracking helps me monitor student
               performance effortlessly. It’s an invaluable platform for our
-              school!"
+              school!&quot;
             </p>
             <hr />
             <div className="reviewer">
@@ -216,11 +216,11 @@ const Home = () => {
 
           <div className="review-card">
             <p>
-              "As a conservation volunteer, I love how Komodo Hub connects
+              &quot;As a conservation volunteer, I love how Komodo Hub connects
               communities with real-world conservation projects. The ability to
               share reports and findings in a structured way has helped our local
               efforts tremendously. This platform makes participation accessible
-              and impactful!"
+              and impactful!&quot;
             </p>
             <hr />
             <div className="reviewer">
@@ -231,10 +231,10 @@ const Home = () => {
 
           <div className="review-card">
             <p>
-              "Komodo Hub has made learning about endangered species fun and
+              &quot;Komodo Hub has made learning about endangered species fun and
               interactive! The gamified activities keep me engaged, and I enjoy
-              earning badges for completing challenges. It's a great way to learn
-              and contribute at the same time!"
+              earning badges for completing challenges. It&apos;s a great way to learn
+              and contribute at the same time!&quot;
             </p>
             <hr />
             <div className="reviewer">
@@ -307,4 +307,3 @@ const faqData = [
 {/* **** TILL HERE REVAN'S PART ***** */}
 
 export default Home;
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

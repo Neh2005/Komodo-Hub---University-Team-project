@@ -1,9 +1,9 @@
 
 /* **** Karmugilan's part **** */
 
-import React, { useEffect, useState } from "react";
-import { db } from "../firebaseconfig";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { auth, db } from "../firebaseconfig";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -26,28 +26,41 @@ const StudentTimetable = ({ classId }) => {
     };
   }, []);
 
-  // ✅ Fetch classId from Firestore if not passed as a prop
-  useEffect(() => {
-    const fetchClassId = async () => {
-      if (!classId) {
-        console.warn("⚠️ No classId provided, trying to fetch from Firestore...");
-        try {
-          const studentQuery = query(collection(db, "users/student/members"));
-          const studentSnapshot = await getDocs(studentQuery);
-          if (!studentSnapshot.empty) {
-            const studentData = studentSnapshot.docs[0].data();
-            setResolvedClassId(studentData.classID);
-            console.log("✅ Fetched classId from Firestore:", studentData.classID);
-          } else {
-            console.warn("⚠️ No student found in Firestore.");
-          }
-        } catch (error) {
-          console.error("🔥 Error fetching classId:", error);
-        }
-      }
-    };
+  // ✅ Fetch classId from Firestore if not passed as a prop — from the SIGNED-IN student's
+  // own profile document. The previous version fetched the first document in the entire
+  // student collection, so every student who opened this page without a classId prop saw
+  // whichever class happened to be first in the collection, not their own.
+  const [classIdError, setClassIdError] = useState(null);
 
-    fetchClassId();
+  useEffect(() => {
+    // auth.currentUser can be transiently null right after mount (see StudentDashboard.jsx
+    // for the same issue) — wait for a real auth state instead of checking synchronously.
+    const unsubscribeAuth = auth.onAuthStateChanged(async (firebaseUser) => {
+      if (classId) return;
+
+      if (!firebaseUser) {
+        setClassIdError("You need to be logged in to view your timetable.");
+        setLoading(false);
+        return;
+      }
+      try {
+        const studentSnap = await getDoc(doc(db, "users/student/members", firebaseUser.uid));
+        if (studentSnap.exists() && studentSnap.data().classID) {
+          setResolvedClassId(studentSnap.data().classID);
+        } else {
+          // No classID on the profile yet — a real, terminal state, not something to keep
+          // spinning on forever (the previous version never called setLoading(false) here).
+          setClassIdError("You haven't joined a class yet — ask your teacher for your class code and add it on your profile.");
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("🔥 Error fetching classId:", error);
+        setClassIdError("Couldn't load your class. Please try again.");
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribeAuth();
   }, [classId]);
 
   // ✅ Fetch timetables when classId is available
@@ -59,24 +72,11 @@ const StudentTimetable = ({ classId }) => {
 
     const fetchTimetables = async () => {
       try {
-        console.log("🔄 Fetching all timetables...");
-        const timetableSnapshot = await getDocs(collection(db, "timetable"));
-
-        let matchedTimetable = [];
-        timetableSnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.classID === resolvedClassId) {
-            console.log("✅ Matched Timetable:", data);
-            matchedTimetable.push(data); // ✅ Store timetable as an array
-          }
-        });
-
-        if (matchedTimetable.length > 0) {
-          setTimetable(matchedTimetable);
-        } else {
-          console.warn("⚠️ No matching timetable found for this class.");
-          setTimetable([]);
-        }
+        // Scoped server-side to this student's own class, instead of pulling every class's
+        // timetable and filtering client-side.
+        const timetableQuery = query(collection(db, "timetable"), where("classID", "==", resolvedClassId));
+        const timetableSnapshot = await getDocs(timetableQuery);
+        setTimetable(timetableSnapshot.docs.map((doc) => doc.data()));
       } catch (error) {
         console.error("🔥 Error fetching timetables:", error);
       } finally {
@@ -88,6 +88,15 @@ const StudentTimetable = ({ classId }) => {
   }, [resolvedClassId]);
 
   if (loading) return <p>Loading timetable...</p>;
+
+  if (classIdError) {
+    return (
+      <div className="timetable-container">
+        <Header />
+        <p>{classIdError}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="timetable-container">

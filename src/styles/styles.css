@@ -97,9 +97,18 @@ body{
 
 .about-cards {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     gap: 30px;
     margin-top: 30px;
+}
+
+/* Without this, the two flex-1 cards squeeze into ~half the viewport width on
+   phones and every word wraps individually (e.g. "Empo/wer/Schoo/ls"). */
+@media (max-width: 600px) {
+    .about-cards {
+        flex-direction: column;
+    }
 }
 
 

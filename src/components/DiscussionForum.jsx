@@ -4,8 +4,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
-import {  db,  collection,  addDoc,  getDocs,  deleteDoc,  doc,  getDoc,  updateDoc} from "../firebaseconfig"; // ✅ Firestore imports
+import {  db,  collection,  addDoc,  getDocs,  deleteDoc,  doc} from "../firebaseconfig"; // ✅ Firestore imports
+import { query, orderBy, limit } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { isUploadTooLarge, MAX_UPLOAD_LABEL } from "../utils/fileValidation";
 import "./DiscussionForum.css"; // CSS file
 
 const DiscussionForum = () => {
@@ -17,6 +19,7 @@ const DiscussionForum = () => {
   const [replyContent, setReplyContent] = useState("");
   const [expandedPostId, setExpandedPostId] = useState(null); // For opening replies
   const [replies, setReplies] = useState({}); // Stores replies per post
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const auth = getAuth();
 
   // ✅ Monitor Authentication State - *************** Neha's part*****************************
@@ -25,12 +28,17 @@ const DiscussionForum = () => {
       setUser(user);
     });
     return () => unsubscribe();
-  }, []);
+  }, [auth]);
 
   // ✅ Handle File Selection
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
+      if (isUploadTooLarge(selectedFile)) {
+        alert(`That file is too large — please choose one under ${MAX_UPLOAD_LABEL}.`);
+        e.target.value = "";
+        return;
+      }
       setFile(selectedFile);
     }
   };
@@ -60,6 +68,9 @@ const DiscussionForum = () => {
       return;
     }
 
+    if (isSubmitting) return; // guards against a double-click firing two writes
+    setIsSubmitting(true);
+
     try {
       let fileData = null;
       let fileType = null;
@@ -71,26 +82,35 @@ const DiscussionForum = () => {
         fileName = file.name;
       }
 
-      await addDoc(collection(db, "discussion"), {
+      const createdBy = user.displayName || user.email;
+      const newPostRef = await addDoc(collection(db, "discussion"), {
         title,
         content,
         fileData,
         fileType,
         fileName,
+        userId: user.uid,
         userEmail: user.email,
-        createdBy: user.displayName || user.email,
+        createdBy,
         timestamp: new Date(),
       });
 
       setTitle("");
       setContent("");
       setFile(null);
-      fetchPosts();
+      // Patch the new post straight into local state instead of re-downloading the whole
+      // discussion collection just to show the one post that was just added.
+      setPosts((prev) => [
+        { id: newPostRef.id, title, content, fileData, fileType, fileName, userId: user.uid, userEmail: user.email, createdBy, timestamp: new Date() },
+        ...prev,
+      ]);
     } catch (error) {
       console.error("❌ Error adding discussion post:", error);
       alert("Failed to submit post.");
+    } finally {
+      setIsSubmitting(false);
     }
-  }; 
+  };
 
   // ✅ Handle Post Deletion
   const handleDeletePost = async (postId, postOwnerEmail) => {
@@ -101,7 +121,7 @@ const DiscussionForum = () => {
 
     try {
       await deleteDoc(doc(db, "discussion", postId));
-      fetchPosts();
+      setPosts((prev) => prev.filter((p) => p.id !== postId)); // patch local state instead of a full re-fetch
     } catch (error) {
       console.error("❌ Error deleting post:", error);
       alert("Failed to delete post.");
@@ -109,10 +129,12 @@ const DiscussionForum = () => {
   }; // Till here Neha's part **********************************
 
 
-  // ✅ Fetch Discussion Posts - ***Revan's part*** 
+  // ✅ Fetch Discussion Posts - ***Revan's part*** — bounded to the most recent 50 instead of
+  // pulling the entire (and growing) collection on every page load.
   const fetchPosts = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, "discussion"));
+      const postsQuery = query(collection(db, "discussion"), orderBy("timestamp", "desc"), limit(50));
+      const querySnapshot = await getDocs(postsQuery);
       const postsArray = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -137,6 +159,7 @@ const DiscussionForum = () => {
   
       await addDoc(repliesRef, {
         content: replyContent,
+        userId: user.uid,
         userEmail: user.email,
         createdBy: user.displayName || user.email,
         timestamp: new Date(),
@@ -306,7 +329,7 @@ const DiscussionForum = () => {
                 <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
                 <textarea placeholder="Write your post..." value={content} onChange={(e) => setContent(e.target.value)}></textarea>
                 <input type="file" accept="image/*, video/*" onChange={handleFileChange} />
-                <button type="submit">Post</button>
+                <button type="submit" disabled={isSubmitting}>{isSubmitting ? "Posting..." : "Post"}</button>
               </form>
             </section>
           ) : (

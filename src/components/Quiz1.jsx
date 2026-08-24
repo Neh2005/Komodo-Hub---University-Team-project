@@ -1,7 +1,7 @@
 
  /* *** Karmugilan's part *** */
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { db, auth } from "../firebaseconfig";
 import { onAuthStateChanged } from "firebase/auth";
@@ -60,6 +60,9 @@ const Quiz1 = () => {
     } else {
       handleSubmit();
     }
+    // handleSubmit is redefined every render; adding it below would restart the
+    // countdown effect every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer]);
 
   const handleAnswer = (option) => {

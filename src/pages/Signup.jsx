@@ -1,11 +1,12 @@
 /* **** Revan's part except some as commented**** */
 
-import React, { useState } from "react";
+import { useState } from "react";
 import "./Signup.css";
 import { auth, db, signInWithGoogle } from "../firebaseconfig";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { collection, doc, setDoc } from "firebase/firestore";
+import { getGravatarUrl } from "../utils/avatar";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -42,6 +43,19 @@ const Signup = () => {
     }
   };
 
+  const getSignupErrorMessage = (error) => {
+    switch (error.code) {
+      case "auth/email-already-in-use":
+        return "⚠ An account with this email already exists. Try logging in instead.";
+      case "auth/invalid-email":
+        return "⚠ Please enter a valid email address.";
+      case "auth/weak-password":
+        return "⚠ Please choose a stronger password.";
+      default:
+        return "⚠ Signup failed. Please try again.";
+    }
+  };
+
   const storeUserData = async (user, additionalData) => {
     if (!user) return;
 
@@ -56,7 +70,11 @@ const Signup = () => {
       category: additionalData.category,
       contact: additionalData.contact,
       institute: additionalData.institute || null,
-      profilePic: user.photoURL || null,
+      // Every dashboard/messages avatar reads the `avatar` field (not `profilePic`, which
+      // was being written here but never read anywhere) — saved once at signup so it's a
+      // real image from day one instead of every account silently falling back to the
+      // generic default icon forever.
+      avatar: user.photoURL || getGravatarUrl(user.email),
       role: categoryPath, // Assign formatted category as role
       createdAt: new Date(),
       isPublic: additionalData.category === "Community",
@@ -88,9 +106,9 @@ const Signup = () => {
       return;
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
-      setMessage("⚠ Password must contain at least one uppercase letter, one number, and one special character.");
+      setMessage("⚠ Password must be at least 8 characters and contain an uppercase letter, a number, and a special character.");
       setIsLoading(false);
       return;
     }
@@ -105,7 +123,7 @@ const Signup = () => {
       setTimeout(() => navigate("/login"), 3000);
     } catch (error) {
       console.error("Signup Error:", error);
-      setMessage(`⚠ Signup Failed: ${error.message}`);
+      setMessage(getSignupErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -128,7 +146,7 @@ const Signup = () => {
         email: user.email,
         category: defaultCategory,
         contact: "",
-        profilePic: user.photoURL || null,
+        avatar: user.photoURL || getGravatarUrl(user.email),
         role: categoryPath,
         createdAt: new Date(),
       };
@@ -137,7 +155,7 @@ const Signup = () => {
 
       setMessage(`✅ Welcome, ${user.displayName}! Redirecting...`);
       setTimeout(() => navigate("/library"), 2000);
-    } catch (error) {
+    } catch {
       setMessage("⚠ Google Sign-up failed. Try again.");
     }
   };

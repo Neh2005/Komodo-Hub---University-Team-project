@@ -1,12 +1,13 @@
 
 // **** CHALITHA's PART ****
 
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { doc, getDoc, updateDoc, deleteDoc, getDocs, collection, query, where, onSnapshot, addDoc } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { doc, getDoc, updateDoc, deleteDoc, getDocs, collection, query, where, limit, onSnapshot, addDoc } from "firebase/firestore";
+import { signOut } from "firebase/auth";
 import { auth, db } from "../firebaseconfig";
+import { getGravatarUrl } from "../utils/avatar";
 import Calendar from "react-calendar";
-import md5 from "md5";
 import "./TeacherDashboard.css";
 import "react-calendar/dist/Calendar.css"; 
 
@@ -15,8 +16,7 @@ const TeacherDashboard = () => {
   const navigate = useNavigate();
   const [assignedAssignments, setAssignedAssignments] = useState(0);
   const [pendingEvaluations, setPendingEvaluations] = useState(0);
-  const [teacherCourses, setTeacherCourses] = useState([]);
-  const [teacherTheme, setTeacherTheme] = useState("blue"); 
+  const [teacherTheme, setTeacherTheme] = useState("blue");
   const [showTeacherProfilePopup, setShowTeacherProfilePopup] = useState(false);
   const [showTeacherDeletePopup, setShowTeacherDeletePopup] = useState(false);
   const [calendarDate, setCalendarDate] = useState(new Date());
@@ -25,7 +25,6 @@ const TeacherDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const [schoolSubscription, setSchoolSubscription] = useState(null);
-  const [teachersWithSameSchool, setTeachersWithSameSchool] = useState([]);
   const [timetable, setTimetable] = useState({ classID: "", subject: "", time: "" });
   const [showTimetablePopup, setShowTimetablePopup] = useState(false);
 
@@ -43,7 +42,10 @@ const TeacherDashboard = () => {
   useEffect(() => {
     const fetchPrograms = async () => {
       try {
-        const programsSnapshot = await getDocs(collection(db, "programs"));
+        // Bounded instead of an unfiltered full-collection scan — see StudentDashboard.jsx
+        // for the same fix and why it matters under concurrent load.
+        const programsQuery = query(collection(db, "programs"), limit(50));
+        const programsSnapshot = await getDocs(programsQuery);
         const programsData = programsSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -60,67 +62,64 @@ const TeacherDashboard = () => {
    
 
   useEffect(() => {
-    const fetchTeacherData = async () => {
-      if (auth.currentUser) {
-        const teacherRef = doc(db, `users/teacher/members/${auth.currentUser.uid}`);
-        const teacherSnap = await getDoc(teacherRef);
-        if (teacherSnap.exists()) {
-          const teacherData = teacherSnap.data();
-          setTeacher(teacherData);
-          setTeacherTheme(teacherData.theme || "blue");
-          setAssignedAssignments(teacherData.assignedAssignments || 0);
-          setPendingEvaluations(teacherData.pendingEvaluations || 0);
-          setTeacherCourses(teacherData.courses || []);
-  
-          if (teacherData.schoolCode) {
-            fetchTeachersWithSameSchool(teacherData.schoolCode);
-            const subscriptionData = await fetchSchoolSubscriptionDetails(teacherData.schoolCode, teacherRef);
-            if (subscriptionData) {
-              setSchoolSubscription(subscriptionData); // ✅ Store in state for display
-            }
+    // auth.currentUser can be transiently null right after mount — Firebase restores the
+    // session asynchronously, so a plain synchronous check here can run before it's ready
+    // and leave `teacher` stuck at null. onAuthStateChanged reliably waits for the real state.
+    const unsubscribeAuth = auth.onAuthStateChanged((firebaseUser) => {
+      if (firebaseUser) fetchTeacherData(firebaseUser.uid);
+    });
+
+    const fetchTeacherData = async (uid) => {
+      const teacherRef = doc(db, `users/teacher/members/${uid}`);
+      const teacherSnap = await getDoc(teacherRef);
+      if (teacherSnap.exists()) {
+        const teacherData = teacherSnap.data();
+        setTeacher(teacherData);
+        setTeacherTheme(teacherData.theme || "blue");
+        setAssignedAssignments(teacherData.assignedAssignments || 0);
+        setPendingEvaluations(teacherData.pendingEvaluations || 0);
+
+        if (teacherData.schoolCode) {
+          const subscriptionData = await fetchSchoolSubscriptionDetails(teacherData.schoolCode, teacherRef, teacherData.subscriptionDetails);
+          if (subscriptionData) {
+            setSchoolSubscription(subscriptionData); // ✅ Store in state for display
           }
         }
       }
     };
-    fetchTeacherData();
+
+    return () => unsubscribeAuth();
   }, []);
   
 
-  const fetchTeachersWithSameSchool = async (schoolCode) => {
+  const fetchSchoolSubscriptionDetails = async (teacherSchoolCode, teacherRef, currentSubscriptionDetails) => {
     try {
-      const q = query(collection(db, "users/teacher/members"), where("schoolCode", "==", schoolCode));
-      const querySnapshot = await getDocs(q);
-      const teachersData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setTeachersWithSameSchool(teachersData);
-    } catch (error) {
-      console.error("Error fetching teachers:", error);
-    }
-  };
 
-  const fetchSchoolSubscriptionDetails = async (teacherSchoolCode, teacherRef) => {
-    try {
-      console.log("🔍 Searching for school with schoolCode:", teacherSchoolCode);
-  
       const schoolCollection = collection(db, "users/school/members");
       const schoolQuery = query(schoolCollection, where("schoolCode", "==", teacherSchoolCode));
       const schoolSnapshot = await getDocs(schoolQuery);
-  
-      console.log("🔥 Query executed, found", schoolSnapshot.size, "results");
-  
+
+
       if (!schoolSnapshot.empty) {
         const schoolData = schoolSnapshot.docs[0].data();
-        console.log("✅ Found school:", schoolData);
-  
+
         if (schoolData.subscriptionActive !== undefined && schoolData.subscriptionExpiry !== undefined) {
           const subscriptionDetails = {
             subscriptionActive: schoolData.subscriptionActive,
             subscriptionExpiry: schoolData.subscriptionExpiry,
           };
-  
-          // ✅ Update the teacher document with the subscription details
-          await updateDoc(teacherRef, { subscriptionDetails });
-          console.log("✅ Subscription details updated in teacher document:", subscriptionDetails);
-  
+
+          // Only write back if something actually changed — this fired an extra write on
+          // every single dashboard load before, regardless of whether the subscription
+          // data was identical to what was already stored.
+          const unchanged =
+            currentSubscriptionDetails?.subscriptionActive === subscriptionDetails.subscriptionActive &&
+            currentSubscriptionDetails?.subscriptionExpiry?.toMillis?.() === subscriptionDetails.subscriptionExpiry?.toMillis?.();
+
+          if (!unchanged) {
+            await updateDoc(teacherRef, { subscriptionDetails });
+          }
+
           return subscriptionDetails; // Return the data to update the dashboard
         } else {
           console.warn("⚠️ Subscription details not found in school document.");
@@ -139,7 +138,8 @@ const TeacherDashboard = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const eventsSnapshot = await getDocs(collection(db, "events"));
+        const eventsQuery = query(collection(db, "events"), limit(50));
+        const eventsSnapshot = await getDocs(eventsQuery);
         const eventsData = eventsSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -204,12 +204,7 @@ const TeacherDashboard = () => {
 }, []);
 
 /*Avatars*/
-const getGravatarUrl = (email) => {
-  const hash = md5(email.trim().toLowerCase());
-  return `https://www.gravatar.com/avatar/${hash}?s=200&d=identicon`;
-};
-
-const avatarUrl = teacher?.email ? getGravatarUrl(teacher.email) : "default-avatar.png";
+const avatarUrl = teacher?.avatar || getGravatarUrl(teacher?.email) || "images/user.png";
 
 
 const goToMessages = async () => {
@@ -229,6 +224,16 @@ const goToMessages = async () => {
   }
 };
 
+const handleLogout = async (e) => {
+  e.preventDefault();
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error("Error signing out:", error);
+  }
+  navigate("/login");
+};
+
   return (
     <div className="teacher-dashboard-container">
       {/* Sidebar */}
@@ -236,24 +241,24 @@ const goToMessages = async () => {
         <ul className="teacher-nav-links">
           <li className="teacher-profile">
             <img
-              src={teacher?.avatar || "images/user.png"} alt="Teacher Profile" onClick={() => setShowTeacherProfilePopup(true)}
+              src={avatarUrl} alt="Teacher Profile" onClick={() => setShowTeacherProfilePopup(true)}
             />
             <span>{teacher?.name || "Teacher Name"}</span>
           </li>
-          <li><a href="/studentinformation"><i className="fas fa-chalkboard-teacher"></i> Students</a></li>
-          <li><a href="/grading"><i className="fas fa-file-alt"></i> Grade Assignments</a></li>
-          <li><a href="#" onClick={() => setShowTimetablePopup(true)}><i className="fas fa-calendar-plus"></i> Add Class Schedule</a></li>
+          <li><Link to="/studentinformation"><i className="fas fa-chalkboard-teacher"></i> Students</Link></li>
+          <li><Link to="/grading"><i className="fas fa-file-alt"></i> Grade Assignments</Link></li>
+          <li><a href="#" onClick={(e) => { e.preventDefault(); setShowTimetablePopup(true); }}><i className="fas fa-calendar-plus"></i> Add Class Schedule</a></li>
           <li>
-            <a href="/messages" onClick={goToMessages}>
+            <Link to="/messages" onClick={(e) => { e.preventDefault(); goToMessages(); }}>
               <i className="fas fa-bell"></i> Notifications
               {hasUnreadMessages && <span className="notification-dot"></span>} {/* 🔴 Red dot if unread messages exist */}
-            </a>
+            </Link>
           </li>
-          <li><a href="/messages"><i className="fas fa-comments"></i> Messages</a></li>
+          <li><Link to="/messages"><i className="fas fa-comments"></i> Messages</Link></li>
         </ul>
         <div className="teacher-bottom-buttons">
           <button className="teacher-delete-btn" onClick={() => setShowTeacherDeletePopup(true)}>🗑️ Delete Account</button>
-          <a href="/login" className="teacher-logout-btn">Logout</a>
+          <a href="/login" className="teacher-logout-btn" onClick={handleLogout}>Logout</a>
         </div>
       </div>
 

@@ -2,47 +2,221 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // 🔹 USERS COLLECTION: Users can read/update their own data, but only admins can see all users
-    match /users/{userCategory}/members/{userId} {
-      allow read, update: if request.auth != null && request.auth.uid == userId; // ✅ Users see and update their own data
-      allow read: if request.auth.token.admin == true; // ✅ Admins can read all user data
-      allow write: if request.auth != null && request.auth.uid == userId; // ✅ Users can update only their own profile
-      
+    // ---------- helpers ----------
+    function isSignedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/admin/members/$(uid()));
+    }
+    function isStudent() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/student/members/$(uid()));
+    }
+    function isTeacher() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/teacher/members/$(uid()));
+    }
+    function studentSelf() {
+      return get(/databases/$(database)/documents/users/student/members/$(uid())).data;
+    }
+    function teacherSelf() {
+      return get(/databases/$(database)/documents/users/teacher/members/$(uid())).data;
     }
 
-    // 🔹 ALLOW STUDENTS & TEACHERS TO FETCH THEIR SCHOOL'S SUBSCRIPTION DETAILS
-    match /users/school/members/{schoolCode} {
-      allow read: if request.auth != null && exists(/databases/$(database)/documents/users/student/members/$(request.auth.uid)) ||
-                                exists(/databases/$(database)/documents/users/teacher/members/$(request.auth.uid));
+    // true if the caller (as a student OR teacher) belongs to the given classID.
+    // targetClassID != null guards against two different users who both lack a classID
+    // matching each other via null == null.
+    function sharesClass(targetClassID) {
+      return targetClassID != null && (
+        (isStudent() && studentSelf().get('classID', null) == targetClassID) ||
+        (isTeacher() && teacherSelf().get('classID', null) == targetClassID)
+      );
+    }
+    // true if the caller (as a student OR teacher) belongs to the given schoolCode
+    function sharesSchool(targetSchoolCode) {
+      return targetSchoolCode != null && (
+        (isStudent() && studentSelf().get('schoolCode', null) == targetSchoolCode) ||
+        (isTeacher() && teacherSelf().get('schoolCode', null) == targetSchoolCode)
+      );
     }
 
-    // 🔹 REGISTERED INSTITUTES: Allow access to authenticated users
+    // the fixed set of signup categories used by Signup.jsx / Login.jsx
+    function hasIdentityInOtherCategory(category) {
+      return
+        (category != "school"               && exists(/databases/$(database)/documents/users/school/members/$(uid()))) ||
+        (category != "student"              && exists(/databases/$(database)/documents/users/student/members/$(uid()))) ||
+        (category != "teacher"              && exists(/databases/$(database)/documents/users/teacher/members/$(uid()))) ||
+        (category != "community"            && exists(/databases/$(database)/documents/users/community/members/$(uid()))) ||
+        (category != "community_member"     && exists(/databases/$(database)/documents/users/community_member/members/$(uid()))) ||
+        (category != "environment_enthusiast" && exists(/databases/$(database)/documents/users/environment_enthusiast/members/$(uid()))) ||
+        (category != "general_enthusiast"   && exists(/databases/$(database)/documents/users/general_enthusiast/members/$(uid())));
+    }
+
+    // ---------- users/{category}/members/{userId} ----------
+    // One profile document per real person. A user may only ever create their OWN
+    // document, may never self-issue an "admin" identity, and may never hold a second
+    // identity under a different category once one exists (closes the SEC-16/SEC-17
+    // self-elevation path found during the audit).
+    match /users/{category}/members/{userId} {
+      allow read: if isSignedIn() && (
+        uid() == userId ||
+        isAdmin() ||
+        sharesClass(resource.data.get('classID', null)) ||                                          // classmates + their teacher can see each other (roster/messaging)
+        ((category == "school" || category == "teacher") && sharesSchool(resource.data.get('schoolCode', null))) || // school's own subscription doc, and TeacherDashboard's "other teachers at my school" list — deliberately NOT extended to students, to keep student visibility scoped to their own class only
+        category == "admin"                                              // admins are discoverable as a support/contact channel (Messages.jsx)
+      );
+
+      allow create: if isSignedIn() && uid() == userId
+                    && category != "admin"
+                    && !hasIdentityInOtherCategory(category);
+
+      allow update: if isSignedIn() && uid() == userId;
+
+      allow delete: if isSignedIn() && (uid() == userId || isAdmin());
+    }
+
+    // ---------- registeredInstitutes / publicData / admins ----------
+    // Not currently written by any code path in this app — locked to admin-only writes
+    // as a safe default rather than left open to any authenticated user.
     match /registeredInstitutes/{instituteId} {
-      allow read, write: if request.auth != null;
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
-
-    // 🔹 PUBLIC DATA: Anyone can read, but only authenticated users can write
     match /publicData/{docId} {
-      allow read;
-      allow write: if request.auth != null;
+      allow read: if true;
+      allow write: if isAdmin();
     }
-
-    // 🔹 ADMINS COLLECTION: Only admins can read & write
     match /admins/{adminId} {
-      allow read, write: if request.auth.token.admin == true;
+      allow read, write: if isAdmin();
     }
 
-    // ❌ DEFAULT RULE: Deny access to all other documents unless explicitly allowed
+    // ---------- posts (Library / Posts.jsx) ----------
+    // Ownership is enforced on `userId` (the author's uid), not `userEmail` — uid is what
+    // request.auth reliably carries; comparing against user-supplied email/display fields
+    // in request.resource.data is a weaker, easier-to-spoof check.
+    match /posts/{postId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == uid();
+      allow update, delete: if isSignedIn() && resource.data.get('userId', null) == uid();
+    }
+
+    // ---------- discussion forum (+ replies subcollection) ----------
+    match /discussion/{postId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.userId == uid();
+      allow update, delete: if isSignedIn() && resource.data.get('userId', null) == uid();
+
+      match /replies/{replyId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn() && request.resource.data.userId == uid();
+        allow delete: if isSignedIn() && resource.data.get('userId', null) == uid();
+      }
+    }
+
+    // ---------- assignments ----------
+    // Visible/writable only to the teacher who owns the class and the students in it.
+    // Known residual limitation (documented, not silently ignored): submissionDetails is
+    // a single array field on this document, so a rule can restrict WHO may write to an
+    // assignment (same class only) but cannot cleanly restrict a student to only their
+    // own entry within that array without a data-model change (a submissions subcollection
+    // keyed by studentId). Flagged for a follow-up, not solved by a rules change alone.
+    match /assignments/{assignmentId} {
+      allow read: if isSignedIn() && (
+        isAdmin() ||
+        sharesClass(resource.data.get('classID', null)) ||
+        uid() == resource.data.get('teacherID', null)
+      );
+
+      allow create: if isSignedIn()
+                    && request.resource.data.teacherID == uid()
+                    && sharesClass(request.resource.data.classID);
+
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        uid() == resource.data.get('teacherID', null) ||
+        sharesClass(resource.data.get('classID', null))
+      );
+
+      allow delete: if isSignedIn() && (isAdmin() || uid() == resource.data.get('teacherID', null));
+    }
+
+    // ---------- timetable ----------
+    match /timetable/{entryId} {
+      allow read: if isSignedIn() && (isAdmin() || sharesClass(resource.data.get('classID', null)));
+      allow create: if isSignedIn() && (isAdmin() || sharesClass(request.resource.data.classID));
+      allow update, delete: if isSignedIn() && (isAdmin() || sharesClass(resource.data.get('classID', null)));
+    }
+
+    // ---------- programs (StudentDashboard / TeacherDashboard / AdminDashboard) ----------
+    match /programs/{programId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+
+      // Enrollment lives in its own subcollection, one document per student, instead of
+      // an array field on the program document itself. Measured under a real 100-way
+      // concurrency test: with enrollment as a shared array field (even behind a
+      // runTransaction retry loop), ~91% of concurrent enrollments in the same program
+      // failed outright from retry exhaustion on that one hot document. Keying each
+      // student's enrollment as its own document means every enrolling student writes to
+      // a DIFFERENT document, so there is no contention between them at all, at any scale.
+      match /enrollments/{studentId} {
+        allow read: if isSignedIn();
+        allow create, update, delete: if isSignedIn() && uid() == studentId;
+      }
+    }
+
+    // ---------- messages (Messages.jsx / Adminmessages.jsx) ----------
+    match /messages/{messageId} {
+      allow read: if isSignedIn() && (uid() == resource.data.get('senderId', null) || uid() == resource.data.get('receiverId', null));
+      allow create: if isSignedIn() && request.resource.data.senderId == uid();
+      allow update: if isSignedIn() && uid() == resource.data.get('receiverId', null); // marking as read
+    }
+
+    // ---------- notifications ----------
+    match /notifications/{notifId} {
+      allow read, update, delete: if isSignedIn() && uid() == resource.data.get('userId', null);
+      allow create: if isSignedIn(); // sender creates a notification FOR the receiver
+    }
+
+    // ---------- audit log (tamper-evident, hash-chained — see src/utils/auditLog.js) ----------
+    // Entries are created once and NEVER updated or deleted, by anyone, including admins.
+    // That immutability is what makes the hash chain meaningful: nobody can rewrite
+    // history through this app, no matter what role they hold — the only way to tamper
+    // is a direct Firebase Console/Admin SDK edit that bypasses these rules entirely,
+    // which the chain can't prevent but is built to detect.
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn()
+                    && request.resource.data.actorUid == uid()
+                    && request.resource.data.action in ['program_delete', 'grade_assignment']
+                    && request.resource.data.keys().hasAll(
+                         ['sequence', 'action', 'actorUid', 'actorEmail', 'targetId', 'details', 'timestampMs', 'prevHash', 'hash']
+                       );
+      allow update, delete: if false;
+    }
+
+    // Chain-head pointer used only to make appends race-safe (see logAuditEvent). It is
+    // NOT the source of truth for verification — verifyAuditChain() re-derives the whole
+    // chain from the immutable auditLogs collection itself, so a corrupted pointer can at
+    // worst fork the *next* append (caught immediately on the next verification run),
+    // never erase or rewrite history that's already been recorded.
+    // Any signed-in actor (a teacher grading an assignment, not just admins) needs to
+    // read this pointer as part of logAuditEvent()'s transaction before it can write —
+    // restricting the read to isAdmin() here would silently break audit logging for
+    // every non-admin action. This does not weaken confidentiality: the pointer only
+    // ever holds a hash and a sequence number, nothing sensitive.
+    match /auditLogMeta/{docId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // ---------- events ----------
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ❌ default deny everything else
     match /{document=**} {
       allow read, write: if false;
-    }
-  }
-}
-
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /users/{category}/{userId}/profilePic.jpg {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

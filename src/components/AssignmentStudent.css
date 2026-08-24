@@ -255,14 +255,19 @@
 }
 
 /* 🔹 Smooth Appearance */
+/* A CSS animation owns the whole `transform` property while it runs, so a keyframe with
+   just scale() here overrides the base rule's translate(-50%, -50%) centering for the
+   animation's duration — the popup's un-shifted top-left corner sits at the exact center
+   point (50%, 50%), so the box balloons into the bottom-right quadrant until the animation
+   ends. Both transforms need to be present in every keyframe. */
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: scale(0.95); /* Small zoom-in effect */
+        transform: translate(-50%, -50%) scale(0.95); /* Small zoom-in effect */
     }
     to {
         opacity: 1;
-        transform: scale(1);
+        transform: translate(-50%, -50%) scale(1);
     }
 }
 

@@ -11,7 +11,7 @@
 .teacher-dashboard-container {
   display: flex;
   min-height: 100vh;
-  width: 120%;
+  width: 100%;
   background-color: #f4f6f9;
   overflow: hidden;
 }
@@ -59,10 +59,10 @@
 /* 🔗 Sidebar Navigation */
 .teacher-nav-links {
   list-style: none;
-  width: 150%;
+  width: 100%;
   flex-grow: 1;
   margin-left: 10px;
-  
+
 }
 
 .teacher-nav-links li {
@@ -725,6 +725,10 @@
 /* 🏫 Main Content */
 .teacher-main-content {
   flex-grow: 1;
+  /* min-width: 0 overrides the flex default (auto), which otherwise refuses to shrink
+     this item below its content's natural width — without it, this panel stays as wide
+     as its widest content and overlaps .teacher-right-sidebar instead of leaving room for it. */
+  min-width: 0;
   padding: 30px;
   width: 100%; /* Ensure it takes all remaining space */
   min-height: 100vh;
@@ -763,16 +767,20 @@
 }
 
 /* 📊 Right Sidebar */
+/* Was position: absolute; right: 0; top: 0 — with no positioned ancestor in this tree,
+   that anchored to the viewport instead of this flex column's place next to
+   .teacher-main-content. Harmless-looking at desktop widths (340px roughly lined up with
+   the right edge by coincidence), but the width: 100% in the responsive rules below then
+   resolved against the viewport too, expanding this panel to cover the ENTIRE screen —
+   sidebar, main content, everything — at any width other than desktop. Now a normal flex
+   item, taking its place in .teacher-content-wrapper's row like it was always meant to. */
 .teacher-right-sidebar {
   width: 340px;
+  flex-shrink: 0;
   padding: 20px;
   background-color: #f4f7fc;
   border-left: 2px solid #ddd;
-  position: absolute;
-  right: 0;
-  top: 0;
   gap: 20px;
-  height: 100vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -856,6 +864,13 @@
 
   .teacher-stat-card {
       flex: 1 1 calc(50% - 10px);
+  }
+
+  /* .teacher-right-sidebar going to width: 100% only makes sense once its parent row
+     (.teacher-content-wrapper) also stacks to a column — otherwise a 100%-wide item
+     fights .teacher-main-content for space in the same row and both overlap/collapse. */
+  .teacher-content-wrapper {
+      flex-direction: column;
   }
 
   .teacher-right-sidebar {

@@ -1,9 +1,9 @@
 
 /* *** Dhanya's part except some parts as commented *** */
 
-import React, { useState } from "react";
+import { useState } from "react";
 import "./Login.css"; // Import CSS
-import { auth, db, signInWithGoogle } from "../firebaseconfig";
+import { db, signInWithGoogle } from "../firebaseconfig";
 import { signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification,getAuth } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
@@ -14,7 +14,6 @@ const Login = () => {
   const [resetEmail, setResetEmail] = useState(""); // For password reset
   const [showResetForm, setShowResetForm] = useState(false); // Toggle Reset Password form
   const [resendVerification, setResendVerification] = useState(false); // Show resend email option
-  const [checkingVerification, setCheckingVerification] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -23,16 +22,33 @@ const Login = () => {
 
   // **** Revan's part ***
   const auth = getAuth();
-    console.log("🔥 User ID:", auth.currentUser?.uid); 
 
   const validateEmail = (email) => {
     return /\S+@\S+\.\S+/.test(email);
   };
 
+  // Deliberately generic for wrong-password/no-such-user — showing a different message for
+  // each lets an attacker enumerate which emails have accounts. Other error codes (network,
+  // too-many-requests, disabled account) are fine to describe specifically since they don't
+  // leak account existence.
+  const getLoginErrorMessage = (error) => {
+    switch (error.code) {
+      case "auth/invalid-credential":
+      case "auth/user-not-found":
+      case "auth/wrong-password":
+        return "⚠ Incorrect email or password.";
+      case "auth/too-many-requests":
+        return "⚠ Too many attempts. Please wait a moment and try again.";
+      case "auth/user-disabled":
+        return "⚠ This account has been disabled.";
+      default:
+        return "⚠ Login failed. Please try again.";
+    }
+  };
+
   // 🔹 Determine where to redirect based on user category
   const redirectUser = async (userId) => {
     try {
-      console.log("🔍 Fetching user data for ID:", userId);
   
       // ✅ Manually check each category path
       const categoryPaths = ["school", "student", "teacher", "community", "admin", "community_member", "environment_enthusiast", "general_enthusiast"];
@@ -42,14 +58,12 @@ const Login = () => {
   
       for (const category of categoryPaths) {
         const userRef = doc(db, "users", category, "members", userId);
-        console.log(`📌 Checking Firestore Path: users/${category}/members/${userId}`);
   
         const userSnap = await getDoc(userRef);
   
         if (userSnap.exists()) {
           userData = userSnap.data();
           categoryPathFound = category;
-          console.log("✅ User data found in category collection:", userData);
           break; // Exit loop if user is found
         }
       }
@@ -125,14 +139,13 @@ const Login = () => {
         return;
       }
 
-      console.log("User Logged In:", user);
       setMessage("✅ Login successful! Redirecting...");
 
       // Redirect user based on their category
       await redirectUser(user.uid);
     } catch (error) {
       console.error("Login Error:", error);
-      setMessage(`⚠ Login Failed: ${error.message}`);
+      setMessage(getLoginErrorMessage(error));
     }
   };
 
@@ -154,24 +167,6 @@ const Login = () => {
     }
   };
 
-  // 🔹 Check verification status manually
-  const handleCheckVerification = async () => {
-    setCheckingVerification(true);
-    const user = auth.currentUser;
-
-    if (user) {
-      await user.reload();
-      console.log("Email Verified Status:", user.emailVerified);
-      if (user.emailVerified) {
-        setMessage("✅ Your email is now verified! Please log in again.");
-        setResendVerification(true);
-      } else {
-        setMessage("⚠ Email is still not verified. Please check your inbox.");
-      }
-    }
-
-    setCheckingVerification(false);
-  };
   {/* ***** TILL HERE REVAN'S PART ***** */}
 
 
@@ -179,7 +174,6 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     try {
       const user = await signInWithGoogle();
-      console.log("Google User:", user);
       setMessage(`✅ Welcome, ${user.displayName}! Redirecting...`);
       
       await redirectUser(user.uid);
@@ -269,7 +263,7 @@ const Login = () => {
                 <p className="resend-verification" onClick={handleResendVerification}>Resend Verification Email</p>
               )}
 
-              <p className="signup-link">Don't have an account? <a href="/signup">Sign Up</a></p>
+              <p className="signup-link">Don&apos;t have an account? <a href="/signup">Sign Up</a></p>
             </form>
           ) : (
             <div>

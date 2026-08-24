@@ -623,16 +623,24 @@
   .content-wrapper {
     display: flex;
     flex: 1;
+    min-width: 0;
     min-height: 100vh;
     overflow: hidden;
   }
-  
-  /* Main Content */
+
+  /* Main Content
+     min-width: 0 overrides the flex default (auto), which otherwise refuses to shrink this
+     item below its content's natural width — charts/buttons inside were pushing the whole
+     dashboard wider than the viewport at any width the two fixed breakpoints below didn't
+     explicitly cover (roughly 1024px–1440px), forcing a horizontal scrollbar. The old
+     width: calc(100% - 300px) was a hardcoded guess that matched neither sibling's real
+     width (.sidebar is 270px, .right-sidebar is 340px) and fought with flex: 1 — removed
+     in favor of just letting flexbox compute the real remaining space. */
   .main-content {
     background: linear-gradient(135deg, var(--primary-color) 10%, rgba(255, 255, 255, 0.7) 80%);
     flex: 1;
+    min-width: 0;
     padding: 30px;
-    width: calc(100% - 300px);
     min-height: 100vh;
     overflow-y: auto;
     border-radius: 10px;
@@ -815,6 +823,7 @@
   /* Right Sidebar */
 .right-sidebar {
     width: 340px;
+    flex-shrink: 0;
     background: white;
     padding: 20px;
     display: flex;

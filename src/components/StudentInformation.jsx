@@ -1,10 +1,11 @@
 
 // **** CHALITHA's PART ***** //
 
-import React, { useState, useEffect } from "react";
-import { collection, query, getDocs, doc, getDoc } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseconfig";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { getGravatarUrl } from "../utils/avatar";
 import "./StudentInformation.css"; // ✅ Ensure styling matches the given CSS
 
 const StudentInformation = () => {
@@ -13,10 +14,8 @@ const StudentInformation = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  console.log("✅ `StudentInformation.js` component is rendering...");
 
   useEffect(() => {
-    console.log("✅ Checking Firebase Auth...");
 
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       if (!user) {
@@ -25,17 +24,14 @@ const StudentInformation = () => {
         return;
       }
 
-      console.log("✅ User logged in:", user.uid);
 
       const teacherRef = doc(db, `users/teacher/members/${user.uid}`);
 
-      console.log("✅ Fetching teacher data...");
 
       try {
         const teacherSnap = await getDoc(teacherRef);
         if (teacherSnap.exists()) {
           const teacherData = teacherSnap.data();
-          console.log("✅ Teacher Data:", teacherData);
           setTeacher(teacherData);
 
           // ✅ Fetch students after getting teacher's class ID
@@ -53,35 +49,31 @@ const StudentInformation = () => {
     return () => {
       unsubscribeAuth();
     };
-  }, []);
+  }, [navigate]);
 
   const fetchStudents = async (classID) => {
     if (!classID) return;
 
-    console.log(`✅ Fetching students for Class ID: ${classID}`);
 
     try {
-      const studentsQuery = query(collection(db, "users/student/members"));
+      const studentsQuery = query(collection(db, "users/student/members"), where("classID", "==", classID));
       const studentsSnapshot = await getDocs(studentsQuery);
       let allStudents = [];
 
       studentsSnapshot.forEach((doc) => {
         const studentData = doc.data();
-        if (studentData.classID === classID) {
-          const completed = studentData.completedAssignments || 0;
-          const incomplete = studentData.incompleteAssignments || 0;
-          const progress = (completed / (completed + incomplete)) * 100 || 0;
+        const completed = studentData.completedAssignments || 0;
+        const incomplete = studentData.incompleteAssignments || 0;
+        const progress = (completed / (completed + incomplete)) * 100 || 0;
 
-          allStudents.push({
-            studentId: studentData.studentId,
-            name: studentData.name,
-            email: studentData.email || "N/A",
-            progress: progress.toFixed(2) + "%",
-          });
-        }
+        allStudents.push({
+          studentId: studentData.studentId,
+          name: studentData.name,
+          email: studentData.email || "N/A",
+          progress: progress.toFixed(2) + "%",
+        });
       });
 
-      console.log("✅ Student Progress Data:", allStudents);
       setStudents(allStudents);
     } catch (error) {
       console.error("❌ Error fetching students:", error);
@@ -100,12 +92,12 @@ const StudentInformation = () => {
           <div className="information-sidebar">
             <ul className="information-nav-links">
               <li className="information-profile">
-                <img src={teacher?.avatar || "images/user.png"} alt="Teacher Profile" />
+                <img src={teacher?.avatar || getGravatarUrl(teacher?.email) || "images/user.png"} alt="Teacher Profile" />
                 <span>{teacher?.name || "Teacher"}</span>
               </li>
-              <li><a href="#"><i className="fas fa-chalkboard-teacher"></i> Students</a></li>
-              <li><a href="/gradeassignment"><i className="fas fa-file-alt"></i> Grade Assignments</a></li>
-              <li><a href="#"><i className="fas fa-calendar"></i> Announcements</a></li>
+              <li><Link to="/studentinformation"><i className="fas fa-chalkboard-teacher"></i> Students</Link></li>
+              <li><Link to="/grading"><i className="fas fa-file-alt"></i> Grade Assignments</Link></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()}><i className="fas fa-calendar"></i> Announcements</a></li>
             </ul>
             <div className="information-bottom-buttons">
               <button className="information-back-dashboard-btn" onClick={() => navigate("/teacher-dashboard")}>

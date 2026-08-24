@@ -162,3 +162,34 @@
   width: 100%;
   flex-shrink: 0; /* Prevents header from shrinking */
 }
+
+/* Below this width, the sidebar's 280px min-width alone exceeds most of the viewport,
+   squeezing .message-box (width: 75%) into an unusably thin sliver. Stack the member
+   list above the chat instead of forcing them side by side. */
+@media (max-width: 768px) {
+  .messages-container {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 60px);
+  }
+
+  .messages-sidebar {
+    width: 100%;
+    min-width: 0;
+    max-height: 35vh;
+    border-right: none;
+    border-bottom: 1px solid #444;
+  }
+
+  .message-box {
+    width: 100%;
+  }
+
+  .chat-box {
+    max-height: none;
+  }
+
+  .message {
+    max-width: 85%;
+  }
+}

@@ -4,8 +4,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
-import { db, collection, addDoc, getDocs, deleteDoc, doc, getDoc } from "../firebaseconfig"; 
+import { db, collection, addDoc, getDocs, deleteDoc, doc, getDoc } from "../firebaseconfig";
+import { query, orderBy, limit } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { isUploadTooLarge, MAX_UPLOAD_LABEL } from "../utils/fileValidation";
 import "./PublicPlatform.css";
 
 const Posts = () => {
@@ -14,6 +16,7 @@ const Posts = () => {
   const [file, setFile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [user, setUser] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const auth = getAuth();
 
@@ -24,12 +27,17 @@ const Posts = () => {
       setUser(user);
     });
     return () => unsubscribe();
-  }, []); // ************************ Till here Neha's part *******************
+  }, [auth]); // ************************ Till here Neha's part *******************
 
   // ✅ Handle File Selection (Convert to Blob) - *********************** Neha's part ****************
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
+      if (isUploadTooLarge(selectedFile)) {
+        alert(`That file is too large — please choose one under ${MAX_UPLOAD_LABEL}.`);
+        e.target.value = "";
+        return;
+      }
       setFile(selectedFile);
     }
   };// ************************* Till here Neha's part ******************
@@ -58,6 +66,9 @@ const Posts = () => {
       return;
     }
 
+    if (isSubmitting) return; // guards against a double-click firing two writes
+    setIsSubmitting(true);
+
     try {
       let fileData = null;
       let fileType = null;
@@ -72,19 +83,23 @@ const Posts = () => {
 
 
       // ✅ Fetch the user's role before saving the post - ****** Dhanya's part *******
-      const userDoc = await getDoc(doc(db, "users", user.email));
-      const userRole = userDoc.exists() ? userDoc.data().role : "unknown";
+      // (Fixed: the old lookup queried users/{email}, a path nothing in this app ever
+      // writes to — real profiles live at users/student/members/{uid}, so this always
+      // missed and student posts were never actually anonymized.)
+      const studentDoc = await getDoc(doc(db, "users/student/members", user.uid));
+      const userRole = studentDoc.exists() ? "student" : "other";
 
       const postCreator = userRole === "student" ? "Anonymous" : (user.displayName || user.email); // *** Till here Dhanya's part ***
 
 
       // ✅ Save post (with document as Blob) in Firestore -******************* Neha's part from here *********************
-      await addDoc(collection(db, "posts"), {
+      const newPostRef = await addDoc(collection(db, "posts"), {
         title,
         content,
         fileData,
         fileType,
         fileName,
+        userId: user.uid,
         userEmail: user.email,
         createdBy: postCreator,
         userRole, // ✅ Store the author's role
@@ -92,19 +107,24 @@ const Posts = () => {
       }); // ******************* Till here - Neha's part*****************************
 
 
-      // ✅ Reset form & fetch updated posts - *** Dhanya's part ***
-
+      // ✅ Reset form & patch the new post straight into local state — avoids re-downloading
+      // the entire posts collection just to show the one post that was just added.
       setTitle("");
       setContent("");
       setFile(null);
-      fetchPosts();
+      setPosts((prev) => [
+        { id: newPostRef.id, title, content, fileData, fileType, fileName, userId: user.uid, userEmail: user.email, createdBy: postCreator, userRole, timestamp: new Date() },
+        ...prev,
+      ]);
     } catch (error) {
       console.error("❌ Error adding post:", error);
       alert("Failed to submit post.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // ✅ Handle Post Deletion (Only if user owns the post) 
+  // ✅ Handle Post Deletion (Only if user owns the post)
   const handleDeletePost = async (postId, postOwnerEmail) => {
     if (user?.email !== postOwnerEmail) {
       alert("You can only delete your own posts.");
@@ -113,17 +133,19 @@ const Posts = () => {
 
     try {
       await deleteDoc(doc(db, "posts", postId));
-      fetchPosts(); // Refresh posts after deletion
+      setPosts((prev) => prev.filter((p) => p.id !== postId)); // patch local state instead of a full re-fetch
     } catch (error) {
       console.error("❌ Error deleting post:", error);
       alert("Failed to delete post.");
     }
   };
 
-  // ✅ Fetch Posts from Firestore (Including User Roles) 
+  // ✅ Fetch Posts from Firestore (Including User Roles) — bounded to the most recent 50 so
+  // this doesn't pull the entire (and growing) collection on every page load.
   const fetchPosts = async () => {
     try {
-        const querySnapshot = await getDocs(collection(db, "posts"));
+        const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"), limit(50));
+        const querySnapshot = await getDocs(postsQuery);
         const postsArray = querySnapshot.docs.map((document) => {
             const postData = document.data();
 
@@ -223,7 +245,7 @@ const Posts = () => {
                   onChange={(e) => setContent(e.target.value)}
                 ></textarea>
                 <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={handleFileChange} />
-                <button type="submit" className="btn primary-btn">Submit Post</button>
+                <button type="submit" className="btn primary-btn" disabled={isSubmitting}>{isSubmitting ? "Submitting..." : "Submit Post"}</button>
               </form>
             </section>
           ) : (

@@ -1,10 +1,12 @@
 
 /* ****** Maneesh's part ******* */
 
-import React, { useState, useEffect } from "react";
-import { collection, query, where, getDocs, doc, updateDoc, onSnapshot, getDoc } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { collection, query, where, getDocs, doc, updateDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseconfig";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { getGravatarUrl } from "../utils/avatar";
+import { logAuditEvent } from "../utils/auditLog";
 import "./GradeAssignment.css"; // ✅ Ensure styling matches the given CSS
 
 const GradeAssignment = () => {
@@ -14,10 +16,8 @@ const GradeAssignment = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  console.log("✅ `GradeAssignment.js` component is rendering...");
 
   useEffect(() => {
-    console.log("✅ Checking Firebase Auth...");
 
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       if (!user) {
@@ -26,17 +26,14 @@ const GradeAssignment = () => {
         return;
       }
 
-      console.log("✅ User logged in:", user.uid);
 
       const teacherRef = doc(db, `users/teacher/members/${user.uid}`);
 
-      console.log("✅ Fetching teacher data...");
 
       try {
         const teacherSnap = await getDoc(teacherRef);
         if (teacherSnap.exists()) {
           const teacherData = teacherSnap.data();
-          console.log("✅ Teacher Data:", teacherData);
           setTeacher(teacherData);
 
           // ✅ Fetch submissions after getting teacher's class ID
@@ -54,43 +51,48 @@ const GradeAssignment = () => {
     return () => {
       unsubscribeAuth();
     };
-  }, []);
+  }, [navigate]);
 
   const fetchSubmissions = async (classID) => {
     if (!classID) return;
 
-    console.log(`✅ Fetching submissions for Class ID: ${classID}`);
 
     try {
       const assignmentsQuery = query(collection(db, "assignments"), where("classID", "==", classID));
       const assignmentsSnapshot = await getDocs(assignmentsQuery);
-      let allSubmissions = [];
 
+      // Flatten every (assignment, submission) pair first, then fetch all the student
+      // names concurrently instead of one getDoc() at a time — for N assignments with M
+      // submissions each, the old loop made N*M sequential round-trips before the page
+      // could render at all. Also dedupes repeated lookups for the same student across
+      // multiple assignments.
+      const pairs = [];
       for (const assignmentDoc of assignmentsSnapshot.docs) {
-        const assignmentID = assignmentDoc.id;
         const assignmentData = assignmentDoc.data();
-
-        if (assignmentData.submissionDetails) {
-          for (const submission of assignmentData.submissionDetails) {
-            const studentRef = doc(db, `users/student/members/${submission.studentID}`);
-            const studentSnap = await getDoc(studentRef);
-            const studentName = studentSnap.exists() ? studentSnap.data().name : "Unknown Student";
-
-            allSubmissions.push({
-              id: submission.studentID,
-              studentName,
-              assignmentTitle: assignmentData.title,
-              submittedFile: submission.fileData,
-              fileName: submission.fileName,
-              marks: submission.marks || "",
-              feedback: submission.feedback || "",
-              assignmentID,
-            });
-          }
+        for (const submission of assignmentData.submissionDetails || []) {
+          pairs.push({ assignmentID: assignmentDoc.id, assignmentData, submission });
         }
       }
 
-      console.log("✅ Student Submissions Fetched:", allSubmissions);
+      const studentNameCache = new Map();
+      await Promise.all(
+        [...new Set(pairs.map((p) => p.submission.studentID))].map(async (studentID) => {
+          const studentSnap = await getDoc(doc(db, `users/student/members/${studentID}`));
+          studentNameCache.set(studentID, studentSnap.exists() ? studentSnap.data().name : "Unknown Student");
+        })
+      );
+
+      const allSubmissions = pairs.map(({ assignmentID, assignmentData, submission }) => ({
+        id: submission.studentID,
+        studentName: studentNameCache.get(submission.studentID),
+        assignmentTitle: assignmentData.title,
+        submittedFile: submission.fileData,
+        fileName: submission.fileName,
+        marks: submission.marks || "",
+        feedback: submission.feedback || "",
+        assignmentID,
+      }));
+
       setSubmissions(allSubmissions);
     } catch (error) {
       console.error("❌ Error fetching submissions:", error);
@@ -107,18 +109,27 @@ const GradeAssignment = () => {
       if (assignmentSnap.exists()) {
         const assignmentData = assignmentSnap.data();
 
-        const updatedSubmissions = assignmentData.submissionDetails.map((submission) => {
+        const updatedSubmissions = (assignmentData.submissionDetails || []).map((submission) => {
           if (submission.studentID === studentID) {
             return {
               ...submission,
-              marks: grading[`${studentID}-${assignmentID}`]?.marks || "",
-              feedback: grading[`${studentID}-${assignmentID}`]?.feedback || "",
+              marks: grading[`${studentID}-${assignmentID}`]?.marks ?? submission.marks ?? "",
+              feedback: grading[`${studentID}-${assignmentID}`]?.feedback ?? submission.feedback ?? "",
             };
           }
           return submission;
         });
 
         await updateDoc(assignmentRef, { submissionDetails: updatedSubmissions });
+
+        const updatedEntry = updatedSubmissions.find((s) => s.studentID === studentID);
+        logAuditEvent({
+          action: "grade_assignment",
+          actorUid: auth.currentUser?.uid,
+          actorEmail: teacher?.email || auth.currentUser?.email || "",
+          targetId: `${assignmentID}:${studentID}`,
+          details: { marks: updatedEntry?.marks ?? "", assignmentTitle: assignmentData.title || "" },
+        }).catch((err) => console.error("Audit log write failed:", err));
 
         alert("Grading updated successfully!");
         fetchSubmissions(teacher.classID);
@@ -139,12 +150,12 @@ const GradeAssignment = () => {
           <div className="grade-sidebar">
             <ul className="grade-nav-links">
               <li className="grade-profile">
-                <img src={teacher?.avatar || "images/user.png"} alt="Teacher Profile" />
+                <img src={teacher?.avatar || getGravatarUrl(teacher?.email) || "images/user.png"} alt="Teacher Profile" />
                 <span>{teacher?.name || "Teacher"}</span>
               </li>
-              <li><a href="#"><i className="fas fa-chalkboard-teacher"></i> Students</a></li>
-              <li><a href="/gradeassignment"><i className="fas fa-file-alt"></i> Grade Assignments</a></li>
-              <li><a href="#"><i className="fas fa-calendar"></i> Announcements</a></li>
+              <li><Link to="/studentinformation"><i className="fas fa-chalkboard-teacher"></i> Students</Link></li>
+              <li><Link to="/grading"><i className="fas fa-file-alt"></i> Grade Assignments</Link></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()}><i className="fas fa-calendar"></i> Announcements</a></li>
             </ul>
             <div className="grading-bottom-buttons">
               <button className="grading-back-dashboard-btn" onClick={() => navigate("/teacher-dashboard")}>
@@ -184,7 +195,7 @@ const GradeAssignment = () => {
                           <input
                             type="number"
                             placeholder="Marks"
-                            value={grading[`${submission.id}-${submission.assignmentID}`]?.marks || submission.marks}
+                            value={grading[`${submission.id}-${submission.assignmentID}`]?.marks ?? submission.marks}
                             onChange={(e) =>
                               setGrading({
                                 ...grading,
@@ -200,7 +211,7 @@ const GradeAssignment = () => {
                           <input
                             type="text"
                             placeholder="Feedback"
-                            value={grading[`${submission.id}-${submission.assignmentID}`]?.feedback || submission.feedback}
+                            value={grading[`${submission.id}-${submission.assignmentID}`]?.feedback ?? submission.feedback}
                             onChange={(e) =>
                               setGrading({
                                 ...grading,

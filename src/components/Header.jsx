@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
 import Dropdown from "react-bootstrap/Dropdown";
+import { getGravatarUrl } from "../utils/avatar";
 import "../styles/styles.css"; // Import the CSS file
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -37,11 +38,15 @@ const Header = () => {
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, [auth, db]);
 
   const handleLogout = async () => {
     await signOut(auth);
   };
+
+  // Firebase Auth's user object already carries email/photoURL — no extra Firestore read
+  // needed to resolve a real avatar here instead of the hardcoded default icon.
+  const headerAvatarUrl = user?.photoURL || getGravatarUrl(user?.email) || "/images/user.png";
 
   return (
     <header className="header">
@@ -80,7 +85,7 @@ const Header = () => {
                 <li className="nav-item d-flex align-items-center">
                   <Dropdown>
                     <Dropdown.Toggle variant="light" id="profile-dropdown" className="border-0 bg-white d-flex align-items-center">
-                      <img src="/images/user.png" alt="Profile" width="30" className="rounded-circle me-2" />
+                      <img src={headerAvatarUrl} alt="Profile" width="30" className="rounded-circle me-2" />
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu align="start">
@@ -130,7 +135,7 @@ const Header = () => {
             <div className="d-none d-lg-block">
               <Dropdown>
                 <Dropdown.Toggle variant="light" id="profile-dropdown" className="border-0 bg-white">
-                  <img src="/images/user.png" alt="Profile" width="35" className="rounded-circle" />
+                  <img src={headerAvatarUrl} alt="Profile" width="35" className="rounded-circle" />
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu align="end">

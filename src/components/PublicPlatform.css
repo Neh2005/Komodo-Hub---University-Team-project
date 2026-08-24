@@ -1,15 +1,20 @@
 
 /* *** Dhanya's part *** */
 
-/* General Page Styling */
+/* General Page Styling
+   Previously a fixed height: 180vh + overflow: hidden — an arbitrary height that either
+   clipped taller content or left a huge empty gap below shorter content, and made this
+   page render at a noticeably different size than its sibling pages (Posts/Discussion/
+   Wildlife), each of which had its own different fixed-height variant. All four are now
+   standardized on this same min-height + overflow: auto pattern. */
 .library-page {
   display: flex;
   flex-direction: column;
   width: 90vw; /* Ensures full viewport width */
-  height: 180vh; /* Ensures full viewport height */
+  min-height: 100vh;
   background-color: #f8f9fa; /* Light background */
   font-family: Arial, sans-serif;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .post-library-page {
@@ -37,6 +42,7 @@
 /* Sidebar */
 .library-sidebar {
   width: 250px;
+  flex-shrink: 0; /* pin the sidebar's width regardless of how wide the content pane wants to be */
   background: #34495e;
   color: white;
   padding: 20px;
@@ -68,6 +74,7 @@
 /* Main Content */
 .library-content {
   flex-grow: 1;
+  min-width: 0;
   background: white;
   padding: 20px;
   border-radius: 10px;

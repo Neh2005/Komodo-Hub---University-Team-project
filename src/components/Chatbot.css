@@ -7,6 +7,31 @@
     right: 20px;
     z-index: 1000;
   }
+
+  /* The default trigger renders an icon plus a wide "Talk to me!" tooltip pill that's
+     wide/tall enough to sit on top of real controls on narrow screens (e.g. the
+     Logout/Delete Account buttons at the bottom of the student dashboard's sidebar).
+     Below 480px, drop to icon-only and shrink it so it stays out of the way. */
+  @media (max-width: 480px) {
+    .helper-chatbot-container {
+      bottom: 10px;
+      right: 10px;
+    }
+
+    .helper-chatbot-container .rcb-chat-tooltip {
+      display: none;
+    }
+
+    .helper-chatbot-container .rcb-toggle-button {
+      width: 44px !important;
+      height: 44px !important;
+    }
+
+    .helper-chatbot-container .rcb-toggle-button svg {
+      width: 26px !important;
+      height: 26px !important;
+    }
+  }
   
   .react-chatbotify .chat-window {
     border-radius: 10px;

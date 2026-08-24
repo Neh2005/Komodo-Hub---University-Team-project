@@ -1,11 +1,12 @@
 
 // ***************************Neha's part***************************
 
-import React, { useState, useEffect } from "react";
-import { collection, getDocs, addDoc, query, where, doc, getDoc, orderBy, onSnapshot, updateDoc } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { collection, getDocs, addDoc, query, where, doc, getDoc, orderBy, onSnapshot } from "firebase/firestore";
 import { auth, db } from "../firebaseconfig";
 import { onAuthStateChanged } from "firebase/auth";
 import { useLocation } from "react-router-dom";
+import { getGravatarUrl } from "../utils/avatar";
 import "./Messages.css";
 import Header from "./Header";
 
@@ -32,7 +33,10 @@ const AdminMessages = () => {
   // ✅ Fetch data on location or member change
   useEffect(() => {
     if (userRole) fetchClassMembers();
-   
+
+    // fetchClassMembers is redefined every render; adding it below would re-run this
+    // effect every render too.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, selectedMember, userRole]);
 
   // 🔹 Fetch User Role & Class ID
@@ -82,7 +86,6 @@ const AdminMessages = () => {
       let users = [];
 
       if (userRole === "Admin") {
-        console.log("🔹 Admin logged in - Fetching all users...");
         
         const teacherSnapshot = await getDocs(collection(db, "users/teacher/members"));
         const studentSnapshot = await getDocs(collection(db, "users/student/members"));
@@ -96,7 +99,6 @@ const AdminMessages = () => {
           ...enthusiastSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), role: "General Enthusiast" }))
         ];
       } else {
-        console.log("🔹 Fetching class members for non-admin users...");
 
         if (!userClassID) {
           console.warn("⚠ No class ID found.");
@@ -120,13 +122,6 @@ const AdminMessages = () => {
       console.error("Error fetching users:", error);
     }
   };
-
-  // 🔹 Fetch chat messages in real-time
-  useEffect(() => {
-    if (selectedMember) {
-      fetchMessages();
-    }
-  }, [selectedMember]);
 
   const fetchMessages = () => {
     if (!auth.currentUser || !selectedMember) return;
@@ -152,6 +147,9 @@ const AdminMessages = () => {
     if (selectedMember) {
       return fetchMessages(); // ✅ Auto-unsubscribes old listener when switching members
     }
+    // fetchMessages is redefined every render; adding it below would re-run this effect
+    // (and re-subscribe) every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMember]);
   
   // 🔹 Send a new message
@@ -194,7 +192,7 @@ const AdminMessages = () => {
           {classMembers.length > 0 ? (
             classMembers.map((member) => (
               <li key={member.id} className={`member-item ${selectedMember?.id === member.id ? "selected" : ""}`} onClick={() => setSelectedMember(member)}>
-                <img src={member.avatar || "default-avatar.png"} alt="Member Avatar" />
+                <img src={member.avatar || getGravatarUrl(member.email) || "images/user.png"} alt="Member Avatar" />
                 <span>{member.name} ({member.role})</span>
               </li>
             ))

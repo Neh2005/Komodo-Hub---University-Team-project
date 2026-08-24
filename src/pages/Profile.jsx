@@ -1,10 +1,9 @@
 
 // Except Subscription part everything else is Maneesh's part as mentioned in the Comments
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { auth, db } from "../firebaseconfig";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 import "./Profile.css"; // Ensure you have a Profile.css file for styling
 
@@ -25,7 +24,6 @@ const Profile = () => {
 
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [iconFile, setIconFile] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false); // ✅ Show/hide payment form
   const [paymentDetails, setPaymentDetails] = useState({
     cardNumber: "",
@@ -35,7 +33,6 @@ const Profile = () => {
   });
 
   const navigate = useNavigate();
-  const storage = getStorage();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -43,7 +40,6 @@ const Profile = () => {
       if (!user) return;
 
       try {
-        console.log("🔍 Fetching user data for ID:", user.uid);
 
         // ✅ Check all possible category paths
         const categoryPaths = ["school", "student", "teacher", "community","admin","community_member", "general_enthusiast"];
@@ -53,7 +49,6 @@ const Profile = () => {
 
         for (const category of categoryPaths) {
           const userRef = doc(db, "users", category, "members", user.uid);
-          console.log(`📌 Checking Firestore Path: users/${category}/members/${user.uid}`);
 
           const userSnap = await getDoc(userRef);
 
@@ -61,7 +56,6 @@ const Profile = () => {
             setProfileData(userSnap.data());
             userData = userSnap.data();
             categoryPathFound = category;
-            console.log("✅ User data found:", userData);
             break; // Stop searching once found
           }
         }
@@ -129,7 +123,6 @@ const Profile = () => {
 
       // ✅ Correct Firestore path
       const userRef = doc(db, "users", categoryPath, "members", user.uid);
-      console.log(`📌 Updating Firestore Path: users/${categoryPath}/members/${user.uid}`);
 
       await setDoc(userRef, profileData, { merge: true });
 

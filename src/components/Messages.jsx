@@ -1,11 +1,12 @@
 
 // *********************** Neha's part ************************
 
-import React, { useState, useEffect } from "react";
-import { collection, getDocs, addDoc, query, where, doc, getDoc, orderBy, onSnapshot, updateDoc } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { collection, addDoc, query, where, doc, getDoc, orderBy, onSnapshot, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseconfig";
 import { onAuthStateChanged } from "firebase/auth";
 import { useLocation } from "react-router-dom";
+import { getGravatarUrl } from "../utils/avatar";
 import "./Messages.css";
 import Header from "./Header";
 
@@ -86,7 +87,7 @@ const Messages = () => {
 
     const unsubscribeTeachers = onSnapshot(teacherQuery, (snapshot) => {
       const teachers = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data(), role: "Teacher" }));
-      setClassMembers((prev) => [...teachers]);
+      setClassMembers([...teachers]); // base list — students/admins listeners below append to this via prev
     });
 
     const unsubscribeStudents = onSnapshot(studentQuery, (snapshot) => {
@@ -106,15 +107,21 @@ const Messages = () => {
     };
   };
 
-  // 🔹 Fetch chat history between two users in real-time
+  // 🔹 Fetch chat history between two users in real-time.
+  // fetchMessages returns its onSnapshot unsubscribe function, which MUST be returned from
+  // this effect — otherwise switching chat contacts leaks a new listener every time instead
+  // of replacing the previous one.
   useEffect(() => {
     if (selectedMember) {
-      fetchMessages();
+      return fetchMessages();
     }
+    // fetchMessages is redefined every render; adding it below would re-run this effect
+    // (and re-subscribe) every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMember]);
 
-  const fetchMessages = async () => {
-    if (!auth.currentUser || !selectedMember) return;
+  const fetchMessages = () => {
+    if (!auth.currentUser || !selectedMember) return undefined;
 
     try {
       let messagesQuery;
@@ -244,7 +251,6 @@ const Messages = () => {
         })
       );
 
-      console.log("✅ All unread messages marked as read.");
     } catch (error) {
       console.error("❌ Error marking messages as read:", error);
     }
@@ -267,7 +273,7 @@ const Messages = () => {
                 className={`member-item ${selectedMember?.id === member.id ? "selected" : ""}`}
                 onClick={() => setSelectedMember(member)}
               >
-                <img src={member.avatar || "default-avatar.png"} alt="Member Avatar" />
+                <img src={member.avatar || getGravatarUrl(member.email) || "images/user.png"} alt="Member Avatar" />
                 <span>{member.name} ({member.role})</span>
               </li>
             ))

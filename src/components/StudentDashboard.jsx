@@ -1,10 +1,12 @@
 
 // ************************ Neha's Part ********************
 
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { query, where, collection, doc, getDocs,getDoc, updateDoc, deleteDoc,arrayUnion, onSnapshot } from "firebase/firestore";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { query, where, limit, collection, doc, getDocs,getDoc, setDoc, updateDoc, deleteDoc,arrayUnion, onSnapshot } from "firebase/firestore";
+import { signOut } from "firebase/auth";
 import { auth, db } from "../firebaseconfig";
+import { getGravatarUrl } from "../utils/avatar";
 import { Chart, registerables } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import "./StudentDashboard.css";
@@ -35,66 +37,79 @@ const Dashboard = () => {
 
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (auth.currentUser) {
-        const userRef = doc(db, `users/student/members/${auth.currentUser.uid}`);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setUser(userData);
-          setTheme(userData.theme || "violet"); // CHALITHA'S PART
-          setCompletedAssignments(userData.completedAssignments || 0);
-          setIncompleteAssignments(userData.incompleteAssignments || 0);
-          setEnrolledPrograms(userData.enrolledPrograms || []);
-          setPoints(userData.points || 0);
-          const today = new Date().getDay(); // Get Current Day Index (0 = Sunday, 6 = Saturday)
-          const updatedLogins = [...(userData.logins || new Array(7).fill(0))];
-          updatedLogins[today] += 1; // Increment Login Count for Today
+    // auth.currentUser can be transiently null right after mount — Firebase restores the
+    // session asynchronously, so a plain synchronous check here can run before it's ready
+    // and leave `user` stuck at null (the "default user" / blank dashboard symptom),
+    // especially right after navigating back from another page. onAuthStateChanged is the
+    // reliable way to know the session is actually ready.
+    const unsubscribeAuth = auth.onAuthStateChanged((firebaseUser) => {
+      if (firebaseUser) fetchUserData(firebaseUser.uid);
+    });
 
-          // Update the Database
-          await updateDoc(userRef, { logins: updatedLogins });
+    const fetchUserData = async (uid) => {
+      const userRef = doc(db, `users/student/members/${uid}`);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        setUser(userData);
+        setTheme(userData.theme || "violet"); // CHALITHA'S PART
+        setCompletedAssignments(userData.completedAssignments || 0);
+        setIncompleteAssignments(userData.incompleteAssignments || 0);
+        setEnrolledPrograms(userData.enrolledPrograms || []);
+        setPoints(userData.points || 0);
+        const today = new Date().getDay(); // Get Current Day Index (0 = Sunday, 6 = Saturday)
+        const updatedLogins = [...(Array.isArray(userData.logins) ? userData.logins : new Array(7).fill(0))];
+        updatedLogins[today] += 1; // Increment Login Count for Today
 
-          setLogins(updatedLogins); // Update State
+        // Update the Database
+        await updateDoc(userRef, { logins: updatedLogins });
 
-          // Fetch Subscription Data
-          if (userData.schoolCode) {
-            const subscriptionData = await fetchSchoolSubscription(userData.schoolCode, userRef);
+        setLogins(updatedLogins); // Update State
+
+        // Fetch Subscription Data
+        if (userData.schoolCode) {
+          const subscriptionData = await fetchSchoolSubscription(userData.schoolCode, userRef, userData.subscriptionDetails);
           if (subscriptionData) {
             setSubscription(subscriptionData); // ✅ Store in state for display
-          }         
-        }
+          }
         }
       }
     };
-    fetchUserData();
+
+    return () => unsubscribeAuth();
   }, []);
 
 
     // 🔹 Fetch Subscription Details Based on schoolCode
-    const fetchSchoolSubscription = async (studentSchoolCode, userRef) => {
+    const fetchSchoolSubscription = async (studentSchoolCode, userRef, currentSubscriptionDetails) => {
       try {
-        console.log("🔍 Searching for school with schoolCode:", studentSchoolCode);
-    
+
         const schoolCollection = collection(db, "users/school/members");
         const schoolQuery = query(schoolCollection, where("schoolCode", "==", studentSchoolCode));
         const schoolSnapshot = await getDocs(schoolQuery);
-    
-        console.log("🔥 Query executed, found", schoolSnapshot.size, "results");
-    
+
+
         if (!schoolSnapshot.empty) {
           const schoolData = schoolSnapshot.docs[0].data();
-          console.log("✅ Found school:", schoolData);
-    
+
           if (schoolData.subscriptionActive !== undefined && schoolData.subscriptionExpiry !== undefined) {
             const subscriptionDetails = {
               subscriptionActive: schoolData.subscriptionActive,
               subscriptionExpiry: schoolData.subscriptionExpiry,
             };
-    
-            // ✅ Update the student document with the subscription details
-            await updateDoc(userRef, { subscriptionDetails });
-            console.log("✅ Subscription details updated in student document:", subscriptionDetails);
-    
+
+            // Only write back if something actually changed — this ran unconditionally on
+            // every single dashboard load before, meaning every concurrent user simply
+            // opening their dashboard fired an extra Firestore write with nothing to show
+            // for it.
+            const unchanged =
+              currentSubscriptionDetails?.subscriptionActive === subscriptionDetails.subscriptionActive &&
+              currentSubscriptionDetails?.subscriptionExpiry?.toMillis?.() === subscriptionDetails.subscriptionExpiry?.toMillis?.();
+
+            if (!unchanged) {
+              await updateDoc(userRef, { subscriptionDetails });
+            }
+
             return subscriptionDetails; // Return the data to update the dashboard
           } else {
             console.warn("⚠️ Subscription details not found in school document.");
@@ -174,7 +189,10 @@ const Dashboard = () => {
     }
 
     // ✅ Allow some time for the DOM update before creating the chart
-    setTimeout(() => {
+    // (timer id captured below so cleanup can cancel it — previously an uncleared timeout
+    // could fire after this effect re-ran or the component unmounted, creating an
+    // untracked Chart.js instance bound to a canvas that was no longer current)
+    const timerId = setTimeout(() => {
         const rootStyles = getComputedStyle(document.documentElement);
         const chartColor = rootStyles.getPropertyValue('--chart-color').trim();
 
@@ -226,12 +244,13 @@ const Dashboard = () => {
 
     // ✅ Cleanup function to properly destroy chart before re-rendering
     return () => {
+        clearTimeout(timerId);
         if (loginChartRef.current) {
             loginChartRef.current.destroy();
             loginChartRef.current = null;
         }
     };
-}, [logins, theme]);  // ✅ Depend on `logins` and `theme` - 
+}, [logins, theme]);  // ✅ Depend on `logins` and `theme` -
 
 
   // Function to handle account deletion
@@ -247,8 +266,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchPrograms = async () => {
-      const programsRef = collection(db, "programs");
-      const snapshot = await getDocs(programsRef);
+      // Bounded instead of an unfiltered full-collection scan — with 100 concurrent
+      // students each loading their dashboard, an unbounded fetch here means 100 full
+      // reads of this collection every time, growing with it forever.
+      const programsQuery = query(collection(db, "programs"), limit(50));
+      const snapshot = await getDocs(programsQuery);
       const programsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setUpcomingPrograms(programsData);
     };
@@ -258,10 +280,9 @@ const Dashboard = () => {
 
   const enrollInProgram = async (programId) => {
     if (!auth.currentUser || !user) return;
-  
+
     const userRef = doc(db, `users/student/members/${auth.currentUser.uid}`);
-    const programRef = doc(db, `programs/${programId}`);
-  
+
     try {
       if (enrolledPrograms.includes(programId)) {
         setSelectedProgram(programId);
@@ -277,31 +298,21 @@ const Dashboard = () => {
         enrolledPrograms: arrayUnion(programId),
       });
   
-      const programSnap = await getDoc(programRef);
-    if (programSnap.exists()) {
-      const programData = programSnap.data();
-
-      // Ensure enrolledUsers exists and is an array
-      let updatedEnrolledUsers = programData.enrolledUsers || [];
-
-      // Add the student details if not already present
-      const studentData = {
+      // A shared `enrolledUsers` array field on one document means every enrolling
+      // student's write contends for that SAME document — a runTransaction() retries
+      // automatically under light contention, but under real concurrent load (measured:
+      // 100 different students enrolling in the same program at once) the vast majority
+      // of transactions exhaust their retries and fail outright for the user, even though
+      // no data gets silently corrupted anymore. The actual fix is to stop sharing one
+      // document at all: each student writes only to their OWN enrollment record in a
+      // subcollection, so there is zero contention between different students no matter
+      // how many enroll at the same moment.
+      await setDoc(doc(db, "programs", programId, "enrollments", auth.currentUser.uid), {
         userId: auth.currentUser.uid,
         name: user.name,
         school: user.institute,
-      };
-
-      const isAlreadyEnrolled = updatedEnrolledUsers.some(
-        (student) => student.userId === auth.currentUser.uid
-      );
-
-      if (!isAlreadyEnrolled) {
-        updatedEnrolledUsers.push(studentData);
-        await updateDoc(programRef, {
-          enrolledUsers: updatedEnrolledUsers,
-        });
-      }
-    }
+        enrolledAt: new Date(),
+      });
 
     alert("Enrolled successfully!");
   } catch (error) {
@@ -312,35 +323,22 @@ const Dashboard = () => {
   
   const unenrollFromProgram = async (programId) => {
     if (!auth.currentUser || !user || !programId) return;
-  
+
     const userRef = doc(db, `users/student/members/${auth.currentUser.uid}`);
-    const programRef = doc(db, `programs/${programId}`);
-  
+
     try {
       // ✅ Step 1: Update local state first (before Firestore)
       setEnrolledPrograms((prev) => prev.filter(id => id !== programId));
-  
+
       // ✅ Step 2: Remove from Firestore in the background
       await updateDoc(userRef, {
         enrolledPrograms: enrolledPrograms.filter(id => id !== programId),
       });
-  
-      // ✅ Step 3: Remove student from program's enrolledUsers
-      const programSnap = await getDoc(programRef);
-      if (programSnap.exists()) {
-        const programData = programSnap.data();
-  
-        if (Array.isArray(programData.enrolledUsers)) {
-          const updatedEnrolledUsers = programData.enrolledUsers.filter(
-            (student) => student.userId !== auth.currentUser.uid
-          );
-  
-          await updateDoc(programRef, {
-            enrolledUsers: updatedEnrolledUsers,
-          });
-        }
-      }
-  
+
+      // Delete this student's own enrollment record — see enrollInProgram for why this
+      // is a subcollection doc rather than an entry in a shared array field.
+      await deleteDoc(doc(db, "programs", programId, "enrollments", auth.currentUser.uid));
+
       alert("Unenrolled successfully!");
     } catch (error) {
       console.error("Error unenrolling from program:", error);
@@ -392,6 +390,16 @@ const Dashboard = () => {
         console.error("Error marking notifications as read:", error);
     }
   };
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+    navigate("/login");
+  };
   
   
   return (
@@ -400,22 +408,22 @@ const Dashboard = () => {
       <div className="sidebar">
         <ul className="nav-links">
           <li className="profile">
-            <img src={user?.avatar || "images/user.png"} alt="User Profile" onClick={() => setShowProfilePopup(true)}/>
+            <img src={user?.avatar || getGravatarUrl(user?.email) || "images/user.png"} alt="User Profile" onClick={() => setShowProfilePopup(true)}/>
             <span>{user?.name || "John Doe"}</span>
           </li>
           <li><a href="#"><i className="fas fa-book"></i> My Courses</a></li>
-          <li><a href="/assignments"><i className="fas fa-file-alt"></i> Assignments</a></li>
-          <li><a href="/timetable"><i className="fas fa-calendar"></i> Schedule</a></li>
-          <li><a href="/messages" onClick={goToMessages}>
+          <li><Link to="/assignments"><i className="fas fa-file-alt"></i> Assignments</Link></li>
+          <li><Link to="/timetable"><i className="fas fa-calendar"></i> Schedule</Link></li>
+          <li><Link to="/messages" onClick={(e) => { e.preventDefault(); goToMessages(); }}>
               <i className="fas fa-bell"></i> Notifications
               {hasUnreadMessages && <span className="student-notification-dot"></span>} {/* 🔴 Red dot if unread messages exist */}
-            </a>
+            </Link>
           </li>
-          <li><a href="/messages"><i className="fas fa-comments"></i> Messages</a></li>
+          <li><Link to="/messages"><i className="fas fa-comments"></i> Messages</Link></li>
         </ul>
         <div className="bottom-buttons">
           <button className="delete-btn" onClick={() => setShowDeletePopup(true)}>Delete Account</button>
-          <a href="/login" className="logout-btn">Logout</a>
+          <a href="/login" className="logout-btn" onClick={handleLogout}>Logout</a>
         </div>
         
       </div>

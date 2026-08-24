@@ -20,7 +20,6 @@ export const fetchWildlifeData = async (speciesName) => {
     const data = await response.json();
 
     if (!data || data.length === 0) {
-      console.log("No data found for", speciesName);
       return null;
     }
 

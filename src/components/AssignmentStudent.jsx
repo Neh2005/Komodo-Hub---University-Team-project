@@ -1,10 +1,12 @@
 
 /* ***************************** Neha's part*****************************/
 
-import React, { useState, useEffect } from "react";
-import { collection, doc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import { collection, doc, onSnapshot, updateDoc, arrayUnion, arrayRemove, query, where } from "firebase/firestore";
 import { auth, db } from "../firebaseconfig";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { getGravatarUrl } from "../utils/avatar";
+import { isUploadTooLarge, MAX_UPLOAD_LABEL } from "../utils/fileValidation";
 import "./AssignmentStudent.css"; // Ensure correct styles
 
 const StudentAssignment = () => {
@@ -17,65 +19,69 @@ const StudentAssignment = () => {
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const navigate = useNavigate();
 
-  console.log("✅ `StudentAssignment.js` component is rendering...");
 
   useEffect(() => {
-    console.log("✅ Checking Firebase Auth...");
+
+    // Track the currently-active student/assignments listeners in this closure so every
+    // re-invocation tears down the PREVIOUS listener before attaching a new one — onSnapshot
+    // and onAuthStateChanged don't support cleanup-via-return the way useEffect does, so this
+    // has to be managed explicitly or every doc update leaks one more open listener.
+    let unsubscribeStudent = () => {};
+    let unsubscribeAssignments = () => {};
 
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+      unsubscribeStudent();
+      unsubscribeAssignments();
+
       if (!user) {
         console.error("❌ No user logged in! Redirecting...");
         navigate("/login");
         return;
       }
 
-      console.log("✅ User logged in:", user.uid);
 
       const studentRef = doc(db, `users/student/members/${user.uid}`);
-      const assignmentsRef = collection(db, "assignments");
 
-      console.log("✅ Fetching student data...");
 
-      const unsubscribeStudent = onSnapshot(studentRef, (studentSnap) => {
+      unsubscribeStudent = onSnapshot(studentRef, (studentSnap) => {
+        unsubscribeAssignments();
+
         if (studentSnap.exists()) {
           const studentData = studentSnap.data();
-          console.log("✅ Student Data:", studentData);
           setStudent(studentData);
 
-          const unsubscribeAssignments = onSnapshot(assignmentsRef, (snap) => {
-            const classAssignments = snap.docs
-              .filter((doc) => doc.data().classID === studentData.classID)
-              .map((doc) => {
-                const data = doc.data();
-                return {
-                  id: doc.id,
-                  ...data,
-                  due_date: data.due_date?.toDate().toLocaleString() || "No due date",
-                  userSubmissions: data.submissionDetails?.filter(sub => sub.studentID === user.uid) || []
-                };
-              });
+          // Scoped server-side to the student's own class — both so the client never
+          // downloads other classes' assignments, and because a fully unfiltered listen
+          // isn't permitted under the classID-scoped Firestore rules anyway.
+          const assignmentsQuery = query(collection(db, "assignments"), where("classID", "==", studentData.classID));
 
-            console.log("✅ Assignments Fetched:", classAssignments);
+          unsubscribeAssignments = onSnapshot(assignmentsQuery, (snap) => {
+            const classAssignments = snap.docs.map((doc) => {
+              const data = doc.data();
+              return {
+                id: doc.id,
+                ...data,
+                due_date: data.due_date?.toDate().toLocaleString() || "No due date",
+                userSubmissions: data.submissionDetails?.filter(sub => sub.studentID === user.uid) || []
+              };
+            });
+
             setAssignments(classAssignments);
             setIsLoading(false);
           });
-
-          return unsubscribeAssignments;
         } else {
           console.error("❌ No student data found!");
           setIsLoading(false);
         }
       });
-
-      return () => {
-        unsubscribeStudent();
-      };
     });
 
     return () => {
       unsubscribeAuth();
+      unsubscribeStudent();
+      unsubscribeAssignments();
     };
-  }, []);
+  }, [navigate]);
 
   const convertFileToBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -87,7 +93,13 @@ const StudentAssignment = () => {
   };
 
   const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
+    const file = e.target.files[0];
+    if (isUploadTooLarge(file)) {
+      alert(`That file is too large — please choose one under ${MAX_UPLOAD_LABEL}.`);
+      e.target.value = "";
+      return;
+    }
+    setSelectedFile(file);
   };
 
   const openPopup = (assignment) => {
@@ -171,12 +183,12 @@ const StudentAssignment = () => {
           <div className="student-sidebar">
             <ul className="student-nav-links">
               <li className="student-profile">
-                <img src={student?.avatar || "images/user.png"} alt="Student Profile" />
+                <img src={student?.avatar || getGravatarUrl(student?.email) || "images/user.png"} alt="Student Profile" />
                 <span>{student?.name || "Student Name"}</span>
               </li>
-              <li><a href="#"><i className="fas fa-book"></i> Courses</a></li>
-              <li><a href="#"><i className="fas fa-file-alt"></i> Assignments</a></li>
-              <li><a href="/timetable"><i className="fas fa-calendar"></i> Schedule</a></li>
+              <li><a href="#" onClick={(e) => e.preventDefault()}><i className="fas fa-book"></i> Courses</a></li>
+              <li><Link to="/assignments"><i className="fas fa-file-alt"></i> Assignments</Link></li>
+              <li><Link to="/timetable"><i className="fas fa-calendar"></i> Schedule</Link></li>
             </ul>
             <div className="assignment-bottom-buttons">
           <button

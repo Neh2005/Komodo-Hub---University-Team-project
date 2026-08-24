@@ -1,9 +1,10 @@
 // **** CHALITHA's PART ****
 
-import React, { useState, useEffect } from "react";
-import {  collection, addDoc, query, where, getDocs, doc, updateDoc, deleteDoc, onSnapshot, getDoc, Timestamp,} from "firebase/firestore";
+import { useState, useEffect } from "react";
+import {  collection, addDoc, query, where, doc, deleteDoc, onSnapshot, getDoc, Timestamp,} from "firebase/firestore";
 import { auth, db } from "../firebaseconfig";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { getGravatarUrl } from "../utils/avatar";
 import "./TeacherAssignment.css"; // ✅ Ensure styling matches the given CSS
 
 const TeacherAssignmentCreate = () => {
@@ -135,30 +136,30 @@ const TeacherAssignmentCreate = () => {
         <ul className="teacher-nav-links-create">
           <li className="teacher-profile-create">
             <img
-              src={teacher?.avatar || "images/user.png"}
+              src={teacher?.avatar || getGravatarUrl(teacher?.email) || "images/user.png"}
               alt="Teacher Profile"
             />
             <span>{teacher?.name || "Teacher Name"}</span>
           </li>
           <li>
-            <a href="#">
+            <Link to="/studentinformation">
               <i className="fas fa-chalkboard-teacher"></i> Students
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="/grading">
+            <Link to="/grading">
               <i className="fas fa-file-alt"></i> Grade Assignments
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="#">
+            <a href="#" onClick={(e) => e.preventDefault()}>
               <i className="fas fa-calendar"></i> Announcements
             </a>
           </li>
           <li>
-            <a href="/messages">
+            <Link to="/messages">
               <i className="fas fa-comments"></i> Messages
-            </a>
+            </Link>
           </li>
         </ul>
         <div className="grading-bottom-buttons">

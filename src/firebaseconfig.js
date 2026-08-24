@@ -1,7 +1,7 @@
 // Import Firebase modules
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, updateDoc, arrayUnion} from "firebase/firestore"; // Firestore for database
+import { getAuth, GoogleAuthProvider, signInWithPopup, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, updateDoc, arrayUnion, connectFirestoreEmulator} from "firebase/firestore"; // Firestore for database
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 
@@ -35,5 +35,15 @@ const signInWithGoogle = async () => {
 export { auth, signInWithGoogle };
 export const db = getFirestore(app); // ✅ Initialize Firestore Database
 export const storage = getStorage(app); // Optional for image uploads
+
+// Opt-in local emulator connection for development only — never active in a production
+// build (import.meta.env.DEV is always false once `vite build` runs) and requires an
+// explicit VITE_USE_EMULATOR=true in a local, gitignored .env.local file, so a normal
+// `npm run dev` still talks to the real project unless a developer deliberately opts in.
+if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATOR === "true") {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+  connectFirestoreEmulator(db, "127.0.0.1", 8080);
+  console.warn("🔧 Connected to local Firebase emulators (VITE_USE_EMULATOR=true)");
+}
 export { collection, addDoc, getDocs, ref, uploadBytes, getDownloadURL, deleteDoc, doc, getDoc, updateDoc, arrayUnion };
 export default app;

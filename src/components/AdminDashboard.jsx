@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { db } from "../firebaseconfig"; // Ensure correct Firebase config import
-import { useNavigate } from "react-router-dom";
-import { doc, getDoc, collection, getDocs, query, where, updateDoc, addDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { auth, db } from "../firebaseconfig"; // Ensure correct Firebase config import
+import { useNavigate, Link } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { doc, getDoc, collection, getDocs, updateDoc, addDoc, deleteDoc } from "firebase/firestore";
+import { getGravatarUrl } from "../utils/avatar";
+import { isUploadTooLarge, MAX_UPLOAD_LABEL } from "../utils/fileValidation";
+import { logAuditEvent, verifyAuditChain } from "../utils/auditLog";
 import { Bar, Line } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 import "./AdminDashboard.css"; // Import external styles if needed
@@ -19,16 +23,42 @@ const AdminDashboard = () => {
   const [schoolCount, setSchoolCount] = useState(0);
   const [communityCount, setCommunityCount] = useState(0);
   const [generalEnthusiastCount, setGeneralEnthusiastCount] = useState(0);
-  const [activeSubscriptions, setActiveSubscriptions] = useState(0);
   const adminId = "B7QFkCgIa4alfymtAcQPqoUCsYl2";
   const [activeSubscriptionsByMonth, setActiveSubscriptionsByMonth] = useState(Array(12).fill(0)); // Array for 12 months
   const [totalActiveSubscriptions, setTotalActiveSubscriptions] = useState(0);
   const [salesByMonth, setSalesByMonth] = useState(Array(12).fill(0));
   const [userDemographics, setUserDemographics] = useState([]);
   const [showPopup, setShowPopup] = useState(false); // ✅ State to control popup
-  const [newProfileImage, setNewProfileImage] = useState(""); 
+  const [showAuditLog, setShowAuditLog] = useState(false);
+  const [auditEntries, setAuditEntries] = useState([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditTampered, setAuditTampered] = useState([]);
   const navigate = useNavigate();
-  
+
+  const openAuditLog = async () => {
+    setShowAuditLog(true);
+    setAuditLoading(true);
+    try {
+      const { entries, tampered } = await verifyAuditChain();
+      setAuditEntries(entries);
+      setAuditTampered(tampered);
+    } catch (error) {
+      console.error("Error verifying audit chain:", error);
+    } finally {
+      setAuditLoading(false);
+    }
+  };
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+    navigate("/login");
+  };
+
   //***************************** Neha's part ******************************
 
   const exportDataToPDF = () => {
@@ -130,6 +160,25 @@ const AdminDashboard = () => {
       console.error("Error adding program:", error);
     }
   };
+
+  const handleDeleteProgram = async (programId) => {
+    if (!window.confirm("Delete this program? This cannot be undone.")) return;
+    const deletedProgram = programs.find((p) => p.id === programId);
+    try {
+      await deleteDoc(doc(db, "programs", programId));
+      setPrograms((prev) => prev.filter((p) => p.id !== programId));
+      logAuditEvent({
+        action: "program_delete",
+        actorUid: auth.currentUser?.uid,
+        actorEmail: adminData?.email || auth.currentUser?.email || "",
+        targetId: programId,
+        details: { title: deletedProgram?.title || "" },
+      }).catch((err) => console.error("Audit log write failed:", err));
+    } catch (error) {
+      console.error("Error deleting program:", error);
+      alert("Failed to delete program.");
+    }
+  };
   // *****TILL HERE CHALITHA'S PART ******
 
 
@@ -211,11 +260,6 @@ const AdminDashboard = () => {
   // ✅ Function to refresh data - *****Chalitha's part****
   const refreshData = () => {
     window.location.reload(); // Refresh the page
-  };
-
-  // ✅ Function to show notifications 
-  const showNotifications = () => {
-    alert("No new notifications."); // Replace with actual notification system
   };
 
   // ***** TILL HERE CHALITHA'S PART *****
@@ -335,13 +379,11 @@ const AdminDashboard = () => {
   /** ✅ Fetch Active Subscriptions */
   const fetchActiveSubscriptions = async () => {
     try {
-      console.log("🔄 Fetching active subscriptions...");
   
       let monthlySubscriptions = Array(12).fill(0);
       let monthlySales = Array(12).fill(0);
       let totalActive = 0;
   
-      console.log("📊 Initialized arrays:", monthlySubscriptions, monthlySales);
   
       const usersRef = [
         collection(db, "users", "school", "members"),
@@ -350,17 +392,13 @@ const AdminDashboard = () => {
       ];
   
       const snapshots = await Promise.all(usersRef.map(ref => getDocs(ref)));
-      console.log("📥 Retrieved user snapshots:", snapshots);
   
-      snapshots.forEach((snapshot, index) => {
-        console.log(`📂 Processing snapshot ${index + 1} with ${snapshot.size} documents`);
+      snapshots.forEach((snapshot) => {
         snapshot.forEach((doc) => {
           const userData = doc.data();
-          console.log("👤 User Data:", userData);
   
           if (userData.subscriptionActive && userData.subscriptionExpiry) {
             totalActive++;
-            console.log("✅ Active subscription found.");
   
             let expiryDate;
             if (userData.subscriptionExpiry.toDate) {
@@ -368,15 +406,12 @@ const AdminDashboard = () => {
             } else {
               expiryDate = new Date(userData.subscriptionExpiry);
             }
-            console.log("📅 Subscription Expiry Date (Converted):", expiryDate);
   
             expiryDate.setFullYear(expiryDate.getFullYear() - 1);
             const startMonth = expiryDate.getMonth();
-            console.log("📆 Calculated Start Month:", startMonth);
   
             if (startMonth >= 0 && startMonth < 12) {
               monthlySubscriptions[startMonth]++;
-              console.log("📈 Updated Subscriptions Array:", monthlySubscriptions);
             }
   
             let category = userData.categoryPath || userData.category;
@@ -401,19 +436,14 @@ const AdminDashboard = () => {
               console.warn("⚠️ Missing category information for user:", userData);
             }
   
-            console.log("💲 Price for this subscription:", price);
             
             if (startMonth >= 0 && startMonth < 12) {
               monthlySales[startMonth] += price;
-              console.log("💰 Updated Sales Array:", monthlySales);
             }
           }
         });
       });
   
-      console.log("🔥 Final Active Subscriptions by Month:", monthlySubscriptions);
-      console.log("🔥 Final Sales by Month:", monthlySales);
-      console.log("🔥 Total Active Subscriptions:", totalActive);
   
       setActiveSubscriptionsByMonth([...monthlySubscriptions]);
       setSalesByMonth([...monthlySales]);
@@ -465,12 +495,16 @@ const AdminDashboard = () => {
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
+    if (isUploadTooLarge(file)) {
+      alert(`That image is too large — please choose one under ${MAX_UPLOAD_LABEL}.`);
+      event.target.value = "";
+      return;
+    }
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = async () => {
       const imageUrl = reader.result; // Get base64 encoded image
-      setNewProfileImage(imageUrl);
 
       // ✅ Save image URL in Firestore
       try {
@@ -484,7 +518,7 @@ const AdminDashboard = () => {
     };
   };
 
-  if (loading) return <p>Loading admin details...</p>; 
+  if (loading) return <p>Loading admin details...</p>;
   
   // ***** Till here and Chalitha's Backend work is done.*******
 
@@ -497,14 +531,17 @@ const AdminDashboard = () => {
         <div className="admin-menu">
           <h2>Admin Panel</h2>
           <ul>
-            <li><a href="/admin-dashboard"><i className="fas fa-home" style={{padding:"15px"}}></i>Dashboard</a></li>
-            <li><a href="/admin-messages"><i className="fas fa-comments" style={{padding:"15px"}}></i> Messages</a></li>
+            <li><Link to="/admin-dashboard"><i className="fas fa-home" style={{padding:"15px"}}></i>Dashboard</Link></li>
+            <li><Link to="/admin-messages"><i className="fas fa-comments" style={{padding:"15px"}}></i> Messages</Link></li>
             <li>
-              <a href="#" onClick={() => setShowProgramForm(true)}><i className="fas fa-calendar-plus" style={{padding:"15px"}}></i>Add Program</a>
-            </li>            
+              <a href="#" onClick={(e) => { e.preventDefault(); setShowProgramForm(true); }}><i className="fas fa-calendar-plus" style={{padding:"15px"}}></i>Add Program</a>
+            </li>
+            <li>
+              <a href="#" onClick={(e) => { e.preventDefault(); openAuditLog(); }}><i className="fas fa-shield-alt" style={{padding:"15px"}}></i>Audit Log</a>
+            </li>
           </ul>
         </div>
-        <a href="/login" className="admin-logout-btn">Logout</a>
+        <a href="/login" className="admin-logout-btn" onClick={handleLogout}>Logout</a>
       </div>
 
       <div className="admin-main-content">
@@ -524,7 +561,7 @@ const AdminDashboard = () => {
          
           {/* Admin Profile Image */}
           <img
-            src={adminData?.profilePicture || " "}
+            src={adminData?.profilePicture || getGravatarUrl(adminData?.email) || "images/user.png"}
             alt="Admin Avatar"
             className="admin-avatar" style={{border: "1px solid black"}}
             onClick={() => setShowPopup(true)} // ✅ Show popup on click
@@ -538,7 +575,7 @@ const AdminDashboard = () => {
           <div className="admin-popup-content">
             <h2>Admin Information</h2>
             <img
-              src={adminData?.profilePicture || ""}
+              src={adminData?.profilePicture || getGravatarUrl(adminData?.email) || "images/user.png"}
               alt="Admin Profile"
               className="admin-popup-avatar"
             />
@@ -554,6 +591,63 @@ const AdminDashboard = () => {
 
             {/* ✅ Close Popup Button */}
             <button className="admin-close-btn" onClick={() => setShowPopup(false)}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Audit Log Modal — tamper-evident hash-chained log of privileged actions */}
+      {showAuditLog && (
+        <div className="admin-popup-overlay">
+          <div className="admin-popup-content" style={{ maxWidth: "720px", width: "90%", textAlign: "left" }}>
+            <h2>Audit Log</h2>
+
+            {auditLoading ? (
+              <p>Verifying chain integrity…</p>
+            ) : auditTampered.length > 0 ? (
+              <div style={{ background: "#f8d7da", color: "#721c24", padding: "12px 16px", borderRadius: "6px", marginBottom: "14px", fontWeight: "bold" }}>
+                ⚠ Tampering detected — {auditTampered.length} log entr{auditTampered.length === 1 ? "y" : "ies"} failed hash-chain
+                verification (sequence {auditTampered.map((t) => t.sequence).join(", ")}). This means a record was
+                altered outside the app after it was written. Investigate immediately.
+              </div>
+            ) : (
+              <div style={{ background: "#d4edda", color: "#155724", padding: "10px 16px", borderRadius: "6px", marginBottom: "14px" }}>
+                ✅ Chain verified — {auditEntries.length} entr{auditEntries.length === 1 ? "y" : "ies"}, no tampering detected.
+              </div>
+            )}
+
+            <div style={{ maxHeight: "420px", overflowY: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+                <thead>
+                  <tr style={{ borderBottom: "2px solid #34495e", textAlign: "left" }}>
+                    <th style={{ padding: "6px" }}>#</th>
+                    <th style={{ padding: "6px" }}>When</th>
+                    <th style={{ padding: "6px" }}>Actor</th>
+                    <th style={{ padding: "6px" }}>Action</th>
+                    <th style={{ padding: "6px" }}>Target</th>
+                    <th style={{ padding: "6px" }}>Chain</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {auditEntries.map((entry) => (
+                    <tr key={entry.id} style={{ borderBottom: "1px solid #ddd", background: entry.verified ? "transparent" : "#f8d7da" }}>
+                      <td style={{ padding: "6px" }}>{entry.sequence}</td>
+                      <td style={{ padding: "6px" }}>{new Date(entry.timestampMs).toLocaleString()}</td>
+                      <td style={{ padding: "6px" }}>{entry.actorEmail}</td>
+                      <td style={{ padding: "6px" }}>{entry.action}</td>
+                      <td style={{ padding: "6px" }}>{entry.targetId}</td>
+                      <td style={{ padding: "6px" }}>{entry.verified ? "✅" : "❌ broken"}</td>
+                    </tr>
+                  ))}
+                  {auditEntries.length === 0 && !auditLoading && (
+                    <tr><td colSpan={6} style={{ padding: "10px", textAlign: "center", color: "#666" }}>No audit events recorded yet.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <button className="admin-close-btn" style={{ marginTop: "14px" }} onClick={() => setShowAuditLog(false)}>
               Close
             </button>
           </div>
@@ -577,6 +671,10 @@ const AdminDashboard = () => {
           <div className="admin-card">
             <h3>Number of Communities</h3>
             <p>{communityCount}</p>
+          </div>
+          <div className="admin-card">
+            <h3>Number of General Enthusiasts</h3>
+            <p>{generalEnthusiastCount}</p>
           </div>
           <div className="admin-card">
             <h3>Active Subscriptions</h3>
@@ -682,10 +780,19 @@ const AdminDashboard = () => {
         <h2>Programs</h2>
         <ul>
           {programs.map((program) => (
-            <li key={program.id}>
-              <h3>{program.title}</h3>
-              <p>{program.description}</p>
-              <img src={program.image} alt={program.title} width="100" />
+            <li key={program.id} className="admin-program-card">
+              <img src={program.image} alt={program.title} className="admin-program-card-image" />
+              <div className="admin-program-card-body">
+                <h3>{program.title}</h3>
+                <p>{program.description}</p>
+                <button
+                  type="button"
+                  className="admin-program-delete-btn"
+                  onClick={() => handleDeleteProgram(program.id)}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
             </li>
           ))}
         </ul>
