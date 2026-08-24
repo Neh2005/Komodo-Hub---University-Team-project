@@ -49,6 +49,12 @@ jobs:
         with:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
+      # --force here only bypasses the interactive "delete this index?" prompt CI can't
+      # answer (this project deploys no Cloud Functions, so --force's other behavior —
+      # deleting functions missing locally — never applies). Confirmed safe: the one index
+      # this currently affects (messages: receiverId+senderId+timestamp) is a stale
+      # duplicate with the two fields in the opposite order from firestore.indexes.json —
+      # no query in src/ uses that order, they all filter senderId before receiverId.
       - name: Deploy to Firebase Hosting, Firestore rules and indexes
-        run: firebase deploy --only hosting,firestore:rules,firestore:indexes
+        run: firebase deploy --only hosting,firestore:rules,firestore:indexes --force
 
