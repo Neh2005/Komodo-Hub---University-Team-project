@@ -5,6 +5,7 @@
   },
  
   "hosting": {
+    "site": "komodo-hub-4ce8c",
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "headers": [
