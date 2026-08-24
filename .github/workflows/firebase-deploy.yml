@@ -36,7 +36,19 @@ jobs:
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
+      # Legacy `firebase login:ci` tokens (--token) are being phased out by Google and
+      # are now being rejected outright (401 on firebaserules.googleapis.com) rather than
+      # just deprecated. This authenticates via a service account key instead, which sets
+      # GOOGLE_APPLICATION_CREDENTIALS — firebase-tools picks that up automatically, so the
+      # deploy step below needs no --token at all. One-time setup: create a service account
+      # with the "Firebase Admin" role in Google Cloud Console for this project, download
+      # its JSON key, and store the whole file's contents as the FIREBASE_SERVICE_ACCOUNT
+      # repo secret (Settings -> Secrets and variables -> Actions).
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
       - name: Deploy to Firebase Hosting, Firestore rules and indexes
-        run: firebase deploy --only hosting,firestore:rules,firestore:indexes --token "${{ secrets.FIREBASE_TOKEN }}"
+        run: firebase deploy --only hosting,firestore:rules,firestore:indexes
 
