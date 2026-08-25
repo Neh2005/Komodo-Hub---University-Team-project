@@ -9,7 +9,7 @@
 // so a leaked key can't be reused elsewhere. A per-session call cap guards
 // the shared free quota from being drained by a single runaway session.
 
-const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_MODEL = "gemini-3.6-flash";
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 const SYSTEM_INSTRUCTION = `You are the "Komodo Hub Helper", a support assistant embedded as a chat widget on the Komodo Hub website — an education and wildlife-conservation platform for schools.
